@@ -560,7 +560,7 @@ public interface EmployeeMapper {
 
 注：可以通过断点调试跟踪后端程序的执行过程
 
-### 2.5、nginx反向代理和负载均衡
+### 2.5、nginx 反向代理和负载均衡
 
 对登录功能测试完毕后，接下来，我们思考一个问题：**前端发送的请求，是如何请求到后端服务的？**
 
@@ -568,15 +568,13 @@ public interface EmployeeMapper {
 
 后端接口地址：http://localhost:8080/admin/employee/login
 
-
-
 ​              **前端请求地址**                                                                                       **后端接口地址**
 
-<img src="img/image-20221107151607921.png" alt="image-20221107151607921" style="zoom:50%;" />                                  <img src="img/image-20221107151623005.png" alt="image-20221107151623005" style="zoom: 33%;" />
+<img src="img/image48.png" alt="image48" style="zoom:50%;" />                                  <img src="img/image49.png" alt="image49" style="zoom: 33%;" />
 
 很明显，两个地址不一致，那是如何请求到后端服务的呢？
 
-![image-20221107152041371](img/image-20221107152041371.png)
+![image50](img/image50.png)
 
 
 
@@ -584,27 +582,25 @@ public interface EmployeeMapper {
 
 **nginx 反向代理**，就是将前端发送的动态请求由 nginx 转发到后端服务器
 
-<img src="img/image-20221107152112092.png" alt="image-20221107152112092" style="zoom:67%;" />
+<img src="img/image51.png" alt="image51" style="zoom:67%;" />
 
-那为什么不直接通过浏览器直接请求后台服务端，需要通过nginx反向代理呢？
-
-
+那为什么不直接通过浏览器直接请求后台服务端，需要通过 nginx 反向代理呢？
 
 **nginx 反向代理的好处：**
 
 - 提高访问速度
 
-  因为nginx本身可以进行缓存，如果访问的同一接口，并且做了数据缓存，nginx就直接可把数据返回，不需要真正地访问服务端，从而提高访问速度。
+  因为 nginx 本身可以进行缓存，如果访问的同一接口，并且做了数据缓存，nginx 就直接可把数据返回，不需要真正地访问服务端，从而提高访问速度。
 
 - 进行负载均衡
 
-  所谓负载均衡,就是把大量的请求按照我们指定的方式均衡的分配给集群中的每台服务器。
+  所谓负载均衡，就是把大量的请求按照我们指定的方式均衡的分配给集群中的每台服务器。
 
 - 保证后端服务安全
 
-  因为一般后台服务地址不会暴露，所以使用浏览器不能直接访问，可以把nginx作为请求访问的入口，请求到达nginx后转发到具体的服务中，从而保证后端服务的安全。
+  因为一般后台服务地址不会暴露，所以使用浏览器不能直接访问，可以把 nginx 作为请求访问的入口，请求到达 nginx 后转发到具体的服务中，从而保证后端服务的安全。
 
-<img src="img/image-20221107153808368.png" alt="image-20221107153808368" style="zoom:67%;" />
+<img src="img/image52.png" alt="image52" style="zoom:67%;" />
 
 **nginx 反向代理的配置方式：**
 
@@ -619,13 +615,11 @@ server{
 }
 ```
 
-**proxy_pass：**该指令是用来设置代理服务器的地址，可以是主机名称，IP地址加端口号等形式。
+**proxy_pass**：该指令是用来设置代理服务器的地址，可以是主机名称，IP 地址加端口号等形式。
 
-如上代码的含义是：监听80端口号， 然后当我们访问 http://localhost:80/api/../..这样的接口的时候，它会通过 location /api/ {} 这样的反向代理到 http://localhost:8080/admin/上来。
+如上代码的含义是：监听 80 端口号，然后当我们访问 http://localhost:80/api/../.. 这样的接口的时候，它会通过 location /api/ {} 这样的反向代理到 http://localhost:8080/admin/ 上来。
 
-
-
-接下来，进到nginx-1.20.2\conf，打开nginx配置
+接下来，进到 nginx-1.20.2\conf，打开 nginx 配置
 
 ```nginx
 # 反向代理,处理管理端发送的请求
@@ -635,17 +629,13 @@ location /api/ {
 }
 ```
 
-当在访问http://localhost/api/employee/login，nginx接收到请求后转到http://localhost:8080/admin/，故最终的请求地址为http://localhost:8080/admin/employee/login，和后台服务的访问地址一致。
-
-
+当在访问 http://localhost/api/employee/login 时，nginx 接收到请求后转到 http://localhost:8080/admin/，故最终的请求地址为 http://localhost:8080/admin/employee/login，和后台服务的访问地址一致。
 
 **2). nginx 负载均衡**
 
-当如果服务以集群的方式进行部署时，那nginx在转发请求到服务器时就需要做相应的负载均衡。其实，负载均衡从本质上来说也是基于反向代理来实现的，最终都是转发请求。
+当如果服务以集群的方式进行部署时，那 nginx 在转发请求到服务器时就需要做相应的负载均衡。其实，负载均衡从本质上来说也是基于反向代理来实现的，最终都是转发请求。
 
-
-
-**nginx 负载均衡的配置方式：**
+**nginx 负载均衡的配置方式**：
 
 ```nginx
 upstream webservers{
@@ -662,24 +652,22 @@ server{
 }
 ```
 
-**upstream：**如果代理服务器是一组服务器的话，我们可以使用upstream指令配置后端服务器组。
+**upstream**：如果代理服务器是一组服务器的话，我们可以使用 upstream 指令配置后端服务器组。
 
-如上代码的含义是：监听80端口号， 然后当我们访问 http://localhost:80/api/../..这样的接口的时候，它会通过 location /api/ {} 这样的反向代理到 http://webservers/admin，根据webservers名称找到一组服务器，根据设置的负载均衡策略(默认是轮询)转发到具体的服务器。
+如上代码的含义是：监听 80 端口号，然后当我们访问 http://localhost:80/api/../.. 这样的接口的时候，它会通过 location /api/ {} 这样的反向代理到 http://webservers/admin，根据 webservers 名称找到一组服务器，根据设置的负载均衡策略（默认是轮询）转发到具体的服务器。
 
-**注：**upstream后面的名称可自定义，但要上下保持一致。
+**注：**upstream 后面的名称可自定义，但要上下保持一致。
 
+**nginx 负载均衡策略**：
 
-
-**nginx 负载均衡策略：**
-
-| **名称**   | **说明**                                               |
-| ---------- | ------------------------------------------------------ |
-| 轮询       | 默认方式                                               |
-| weight     | 权重方式，默认为1，权重越高，被分配的客户端请求就越多  |
-| ip_hash    | 依据ip分配方式，这样每个访客可以固定访问一个后端服务   |
-| least_conn | 依据最少连接方式，把请求优先分配给连接数少的后端服务   |
-| url_hash   | 依据url分配方式，这样相同的url会被分配到同一个后端服务 |
-| fair       | 依据响应时间方式，响应时间短的服务将会被优先分配       |
+| **名称**   | **说明**                                                   |
+| ---------- | ---------------------------------------------------------- |
+| 轮询       | 默认方式                                                   |
+| weight     | 权重方式，默认为 1，权重越高，被分配的客户端请求就越多     |
+| ip_hash    | 依据 ip 分配方式，这样每个访客可以固定访问一个后端服务     |
+| least_conn | 依据最少连接方式，把请求优先分配给连接数少的后端服务       |
+| url_hash   | 依据 url 分配方式，这样相同的 url 会被分配到同一个后端服务 |
+| fair       | 依据响应时间方式，响应时间短的服务将会被优先分配           |
 
 具体配置方式：
 
@@ -741,75 +729,85 @@ upstream webservers{
 }
 ```
 
-
-
 ## 3、完善登录功能
 
-**问题：**员工表中的密码是明文存储，安全性太低。
+**问题**：员工表中的密码是明文存储，安全性太低。
 
-![image-20221107160529803](img/image-20221107160529803.png)
+![image53](img/image53.png)
 
-**解决思路：**
+**解决思路**：
 
 1. 将密码加密后存储，提高安全性
 
-   <img src="img/image-20221107161918913.png" alt="image-20221107161918913" style="zoom:50%;" />
+   <img src="img/image54.png" alt="image54" style="zoom:50%;" />
 
-2. 使用MD5加密方式对明文密码加密
+2. 使用 MD5 加密方式对明文密码加密
 
-   <img src="img/image-20221107160739680.png" alt="image-20221107160739680" style="zoom:50%;" />
+   <img src="img/image55.png" alt="image55" style="zoom:50%;" />
 
 **实现步骤：**
 
-1. 修改数据库中明文密码，改为MD5加密后的密文
+1. 修改数据库中明文密码，改为 MD5 加密后的密文
 
-   打开employee表，修改密码
+   打开 employee 表，修改密码
 
-   ![image-20221107161446710](img/image-20221107161446710.png)
+   ![image56](img/image56.png)
 
-2. 修改Java代码，前端提交的密码进行MD5加密后再跟数据库中密码比对
+2. 修改 Java 代码，前端提交的密码进行 MD5 加密后再跟数据库中密码比对
 
-   打开EmployeeServiceImpl.java，修改比对密码
+   打开 EmployeeServiceImpl.java，修改比对密码
 
-   ```java
-   /**
-   * 员工登录
-   *
-   * @param employeeLoginDTO
-   * @return
-   */
-   public Employee login(EmployeeLoginDTO employeeLoginDTO) {
-   
-       //1、根据用户名查询数据库中的数据
-   
-       //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
-       //.......
-       //密码比对
-       // TODO 后期需要进行md5加密，然后再进行比对
-       password = DigestUtils.md5DigestAsHex(password.getBytes());
-       if (!password.equals(employee.getPassword())) {
-           //密码错误
-           throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
-       }
-   
-       //........
-   
-       //3、返回实体对象
-       return employee;
-   }
-   ```
+```java
+@Service
+public class EmployeeServiceImpl implements EmployeeService {
+    @Autowired
+    private EmployeeMapper employeeMapper;
 
-   
+    /**
+     * 员工登录
+     *
+     * @param employeeLoginDTO
+     * @return
+     */
+    public Employee login(EmployeeLoginDTO employeeLoginDTO) {
+        String username = employeeLoginDTO.getUsername();
+        String password = employeeLoginDTO.getPassword();
+
+        //1、根据用户名查询数据库中的数据
+        Employee employee = employeeMapper.getByUsername(username);
+
+        //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
+        if (employee == null) {
+            //账号不存在
+            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
+        }
+
+        //密码比对
+        //对前端传过来的明文密码进行md5加密，然后再进行比对
+        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        if (!password.equals(employee.getPassword())) {
+            //密码错误
+            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
+        }
+
+        if (employee.getStatus() == StatusConstant.DISABLE) {
+            //账号被锁定
+            throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
+        }
+
+        //3、返回实体对象
+        return employee;
+    }
+}
+```
 
 # 四、导入接口文档
 
 接下来，就要进入到项目的业务开发了，而我们的开发方式就是基本当前企业主流的前后端分离开发方式，那么这种方式就要求我们之前需要先将接口定义好，这样前后端人员才能并行开发，所以，这个章节就需要将接口文档导入到管理平台，为我们后面业务开发做好准备。其实，在真实的企业开发中，接口设计过程其实是一个非常漫长的过程，可能需要多次开会讨论调整，甚至在开发的过程中才会发现某些接口定义还需要再调整，这种情况其实是非常常见的，但是由于项目时间原因，所以选择一次性导入所有的接口，在开发业务功能过程当中，也会带着大家一起来分析一下对应的接口是怎么确定下来的，为什么要这样定义，从而培养同学们的接口设计能力。
 
+## 1、前后端分离开发流程
 
-
-### 4.1 前后端分离开发流程
-
-<img src="img/image-20221107181446913.png" alt="image-20221107181446913" style="zoom:67%;" />
+<img src="img/image57.png" alt="image57" style="zoom:67%;" />
 
 第一步：定义接口，确定接口的路径、请求方式、传入参数、返回参数。
 
@@ -819,121 +817,119 @@ upstream webservers{
 
 第四步：提交给测试人员进行最终测试。
 
+## 2、操作步骤
 
-
-### 4.2 操作步骤
-
-将课程资料中提供的项目接口导入YApi。访问地址：http://yapi.smart-xwork.cn/
+将课程资料中提供的项目接口导入 YApi。访问地址：https://yapi.pro
 
 **1). 从资料中找到项目接口文件**
 
-<img src="img/image-20221107184823104.png" alt="image-20221107184823104" style="zoom:80%;" />
+<img src="img/image58.png" alt="image58" style="zoom:80%;" />
 
 **2). 导入到YApi平台**
 
-在YApi平台创建出两个项目
+在 YApi 平台创建出两个项目
 
-<img src="img/image-20221107185304117.png" alt="image-20221107185304117" style="zoom: 50%;" />
+<img src="img/image59.png" alt="image59" style="zoom: 50%;" />
 
 选择苍穹外卖-管理端接口.json导入
 
-<img src="img/image-20221107185630516.png" alt="image-20221107185630516" style="zoom:50%;" />
+<img src="img/image60.png" alt="image60" style="zoom:50%;" />
 
 导入成功
 
-<img src="img/image-20221107185742061.png" alt="image-20221107185742061" style="zoom:50%;" />
+<img src="img/image61.png" alt="image61" style="zoom:50%;" />
 
-
-
-另一个用户端json文件也执行相同操作。
-
-
+另一个用户端 json 文件也执行相同操作。
 
 # 五、Swagger
 
-### 5.1 介绍
+## 1、介绍
 
-Swagger 是一个规范和完整的框架，用于生成、描述、调用和可视化 RESTful 风格的 Web 服务(<https://swagger.io/>)。 它的主要作用是：
+Swagger 是一个规范和完整的框架，用于生成、描述、调用和可视化 RESTful 风格的 Web 服务。它的主要作用是：
 
 1. 使得前后端分离开发更加方便，有利于团队协作
 
 2. 接口的文档在线自动生成，降低后端开发人员编写接口文档的负担
 
-3. 功能测试 
+3. 功能测试
 
-   Spring已经将Swagger纳入自身的标准，建立了Spring-swagger项目，现在叫Springfox。通过在项目中引入Springfox ，即可非常简单快捷的使用Swagger。
+使用 Swagger 你只需要按照它的规范去定义接口及接口相关的信息，就可以做到生成接口文档，以及在线接口调试页面。
 
-knife4j是为Java MVC框架集成Swagger生成Api文档的增强解决方案,前身是swagger-bootstrap-ui,取名kni4j是希望它能像一把匕首一样小巧,轻量,并且功能强悍!
+官网：<https://swagger.io/>
 
-目前，一般都使用knife4j框架。
+Spring 已经将 Swagger 纳入自身的标准，建立了 Spring-swagger 项目，现在叫 Springfox。通过在项目中引入Springfox，即可非常简单快捷的使用 Swagger。
+
+knife4j 是为 Java MVC 框架集成 Swagger 生成 Api 文档的增强解决方案，前身是 swagger-bootstrap-ui，取名 knife4j  是希望它能像一把匕首一样小巧、轻量、并且功能强悍！目前，一般都使用 knife4j 框架。
+
+## 2、使用步骤
+
+1. 导入 knife4j 的 maven 坐标
+
+   在 pom.xml 中添加依赖
 
 
-
-### 5.2 使用步骤
-
-1. 导入 knife4j 的maven坐标
-
-   在pom.xml中添加依赖
-
-   ```xml
-   <dependency>
-      <groupId>com.github.xiaoymin</groupId>
-      <artifactId>knife4j-spring-boot-starter</artifactId>
-   </dependency>
-   ```
+```xml
+<dependency>
+   <groupId>com.github.xiaoymin</groupId>
+   <artifactId>knife4j-spring-boot-starter</artifactId>
+</dependency>
+```
 
 2. 在配置类中加入 knife4j 相关配置
 
-   WebMvcConfiguration.java
+​			WebMvcConfiguration.java
 
-   ```java
-   /**
-        * 通过knife4j生成接口文档
-        * @return
-   */
-       @Bean
-       public Docket docket() {
-           ApiInfo apiInfo = new ApiInfoBuilder()
-                   .title("苍穹外卖项目接口文档")
-                   .version("2.0")
-                   .description("苍穹外卖项目接口文档")
-                   .build();
-           Docket docket = new Docket(DocumentationType.SWAGGER_2)
-                   .apiInfo(apiInfo)
-                   .select()
-                   .apis(RequestHandlerSelectors.basePackage("com.sky.controller"))
-                   .paths(PathSelectors.any())
-                   .build();
-           return docket;
-       }
-   ```
-
-   
+```java
+/**
+* 通过knife4j生成接口文档
+* @return
+*/
+@Bean
+public Docket docket() {
+    log.info("准备生成接口文档...");
+    ApiInfo apiInfo = new ApiInfoBuilder()
+        .title("苍穹外卖项目接口文档")
+        .version("2.0")
+        .description("苍穹外卖项目接口文档")
+        .build();
+    
+    Docket docket = new Docket(DocumentationType.SWAGGER_2)
+        .apiInfo(apiInfo)
+        .select()
+        //指定生成接口需要扫描的包
+        .apis(RequestHandlerSelectors.basePackage("com.sky.controller"))
+        .paths(PathSelectors.any())
+        .build();
+    
+    return docket;
+}
+```
 
 3. 设置静态资源映射，否则接口文档页面无法访问
 
-   WebMvcConfiguration.java
+​			WebMvcConfiguration.java
 
-   ```java
-   /**
-        * 设置静态资源映射
-        * @param registry
-   */
-   protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-           registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
-           registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-   }
-   ```
+```java
+/**
+* 设置静态资源映射
+* @param registry
+*/
+protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+    log.info("开始设置静态资源映射...");
+    registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
+    registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+}
+```
 
 4. 访问测试
 
-   接口文档访问路径为 http://ip:port/doc.html ---> http://localhost:8080/doc.html
+​			接口文档访问路径为 http://ip:port/doc.html，如 http://localhost:8080/doc.html
 
-   <img src="img/image-20221107173033632.png" alt="image-20221107173033632" style="zoom:50%;" />
+<img src="img/image62.png" alt="image62" style="zoom:50%;" />
 
-   接口测试:测试登录功能
+接口测试：测试登录功能
 
-   <img src="img/image-20221107173137506.png" alt="image-20221107173137506" style="zoom:50%;" />
+<img src="img/image63.png" alt="image63" style="zoom:50%;" />
 
 **思考：**通过 Swagger 就可以生成接口文档，那么我们就不需要 Yapi 了？
 
@@ -941,22 +937,20 @@ knife4j是为Java MVC框架集成Swagger生成Api文档的增强解决方案,前
 
 2、Swagger 在开发阶段使用的框架，帮助后端开发人员做后端的接口测试
 
-
-
-### 5.3 常用注解
+## 3、常用注解
 
 通过注解可以控制生成的接口文档，使接口文档拥有更好的可读性，常用注解如下：
 
-| **注解**          | **说明**                                               |
-| ----------------- | ------------------------------------------------------ |
-| @Api              | 用在类上，例如Controller，表示对类的说明               |
-| @ApiModel         | 用在类上，例如entity、DTO、VO                          |
-| @ApiModelProperty | 用在属性上，描述属性信息                               |
-| @ApiOperation     | 用在方法上，例如Controller的方法，说明方法的用途、作用 |
+| **注解**          | **说明**                                                 |
+| ----------------- | -------------------------------------------------------- |
+| @Api              | 用在类上，例如 Controller，表示对类的说明                |
+| @ApiModel         | 用在类上，例如 entity、DTO、VO                           |
+| @ApiModelProperty | 用在属性上，描述属性信息                                 |
+| @ApiOperation     | 用在方法上，例如 Controller 的方法，说明方法的用途、作用 |
 
 接下来，使用上述注解，生成可读性更好的接口文档
 
-在sky-pojo模块中
+在 sky-pojo 模块中
 
 EmployeeLoginDTO.java
 
@@ -1019,7 +1013,7 @@ public class EmployeeLoginVO implements Serializable {
 }
 ```
 
-在sky-server模块中
+在 sky-server 模块中
 
 EmployeeController.java
 
@@ -1086,10 +1080,9 @@ public class EmployeeController {
     }
 
 }
-
 ```
 
-启动服务：访问http://localhost:8080/doc.html
+启动服务：访问 http://localhost:8080/doc.html
 
-<img src="img/image-20221107175649468.png" alt="image-20221107175649468" style="zoom:50%;" />
+<img src="img/image64.png" alt="image64" style="zoom:50%;" />
 
