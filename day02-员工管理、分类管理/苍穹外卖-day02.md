@@ -1056,171 +1056,157 @@ public class JacksonObjectMapper extends ObjectMapper {
 
 # 三、启用禁用员工账号
 
-### 3.1 需求分析与设计
+## 1、需求分析与设计
 
-#### 3.1.1 产品原型
+### 1.1、产品原型
 
 在员工管理列表页面，可以对某个员工账号进行启用或者禁用操作。账号禁用的员工不能登录系统，启用后的员工可以正常登录。如果某个员工账号状态为正常，则按钮显示为 "禁用"，如果员工账号状态为已禁用，则按钮显示为"启用"。
 
 **启禁用员工原型：**
 
-<img src="assets/image-20221112112359233.png" alt="image-20221112112359233" style="zoom:67%;" /> 
+<img src="img/image41.png" alt="image41" style="zoom:67%;" /> 
 
 **业务规则：**
 
-- 可以对状态为“启用” 的员工账号进行“禁用”操作
-- 可以对状态为“禁用”的员工账号进行“启用”操作
-- 状态为“禁用”的员工账号不能登录系统
+- 可以对状态为 “启用” 的员工账号进行“禁用”操作
+- 可以对状态为 “禁用” 的员工账号进行“启用”操作
+- 状态为 “禁用” 的员工账号不能登录系统
 
+### 1.2、接口设计
 
-
-#### 3.1.2 接口设计
-
-<img src="assets/image-20221112112728333.png" alt="image-20221112112728333" style="zoom:50%;" /><img src="assets/image-20221112112739680.png" alt="image-20221112112739680" style="zoom:50%;" />
-
-
+<img src="img/image42.png" alt="image42" style="zoom:50%;" /><img src="img/image43.png" alt="image43" style="zoom:50%;" />
 
 1). 路径参数携带状态值。
 
-2). 同时，把id传递过去，明确对哪个用户进行操作。
+2). 同时把 id 传递过去，明确对哪个用户进行操作。
 
-3). 返回数据code状态是必须，其它是非必须。
+3). 返回数据 code 状态是必须，其它是非必须。
 
+## 2、代码开发
 
+### 2.1、Controller层
 
-### 3.2 代码开发
-
-#### 3.2.1 Controller层
-
-在sky-server模块中，根据接口设计中的请求参数形式对应的在 EmployeeController 中创建启用禁用员工账号的方法：
+在 sky-server 模块中，根据接口设计中的请求参数形式对应的在 EmployeeController 中创建启用禁用员工账号的方法：
 
 ```java
-	/**
-     * 启用禁用员工账号
-     * @param status
-     * @param id
-     * @return
-     */
-    @PostMapping("/status/{status}")
-    @ApiOperation("启用禁用员工账号")
-    public Result startOrStop(@PathVariable Integer status,Long id){
-        log.info("启用禁用员工账号：{},{}",status,id);
-        employeeService.startOrStop(status,id);//后绪步骤定义
-        return Result.success();
-    }
+/**
+* 启用禁用员工账号
+* @param status
+* @param id
+* @return
+*/
+@PostMapping("/status/{status}")
+@ApiOperation("启用禁用员工账号")
+public Result startOrStop(@PathVariable Integer status,Long id){
+    log.info("启用禁用员工账号：{},{}",status,id);
+    employeeService.startOrStop(status,id);//后续步骤定义
+    return Result.success();
+}
 ```
 
-
-
-#### 3.2.2 Service层接口
+### 2.2、Service层接口
 
 在 EmployeeService 接口中声明启用禁用员工账号的业务方法：
 
 ```java
-	/**
-     * 启用禁用员工账号
-     * @param status
-     * @param id
-     */
-    void startOrStop(Integer status, Long id);
+/**
+* 启用禁用员工账号
+* @param status
+* @param id
+*/
+void startOrStop(Integer status, Long id);
 ```
 
-
-
-#### 3.2.3 Service层实现类
+### 2.3、Service层实现类
 
 在 EmployeeServiceImpl 中实现启用禁用员工账号的业务方法：
 
 ```java
-	/**
-     * 启用禁用员工账号
-     *
-     * @param status
-     * @param id
-     */
-    public void startOrStop(Integer status, Long id) {
-        Employee employee = Employee.builder()
-                .status(status)
-                .id(id)
-                .build();
+/**
+* 启用禁用员工账号
+*
+* @param status
+* @param id
+*/
+public void startOrStop(Integer status, Long id) {
+    // update employee set status=? where id=?
 
-        employeeMapper.update(employee);
-    }
+    /*Employee employee = new Employee();
+    employee.setStatus(status);
+    employee.setId(id);*/
+    
+    Employee employee = Employee.builder()
+        .status(status)
+        .id(id)
+        .build();
+
+    employeeMapper.update(employee);
+}
 ```
 
-
-
-#### 3.2.4 Mapper层
+### 2.4、Mapper层
 
 在 EmployeeMapper 接口中声明 update 方法：
 
 ```java
-	/**
-     * 根据主键动态修改属性
-     * @param employee
-     */
-    void update(Employee employee);
+/**
+* 根据主键动态修改属性
+* @param employee
+*/
+void update(Employee employee);
 ```
 
 在 EmployeeMapper.xml 中编写SQL：
 
 ```sql
 <update id="update" parameterType="Employee">
-        update employee
-        <set>
-            <if test="name != null">name = #{name},</if>
-            <if test="username != null">username = #{username},</if>
-            <if test="password != null">password = #{password},</if>
-            <if test="phone != null">phone = #{phone},</if>
-            <if test="sex != null">sex = #{sex},</if>
-            <if test="idNumber != null">id_Number = #{idNumber},</if>
-            <if test="updateTime != null">update_Time = #{updateTime},</if>
-            <if test="updateUser != null">update_User = #{updateUser},</if>
-            <if test="status != null">status = #{status},</if>
-        </set>
-        where id = #{id}
-    </update>
+	update employee
+	<set>
+		<if test="name != null">name = #{name},</if>
+        <if test="username != null">username = #{username},</if>
+        <if test="password != null">password = #{password},</if>
+        <if test="phone != null">phone = #{phone},</if>
+        <if test="sex != null">sex = #{sex},</if>
+        <if test="idNumber != null">id_Number = #{idNumber},</if>
+        <if test="updateTime != null">update_Time = #{updateTime},</if>
+        <if test="updateUser != null">update_User = #{updateUser},</if>
+        <if test="status != null">status = #{status},</if>
+	</set>
+	where id = #{id}
+</update>
 ```
 
+## 3、功能测试
 
+### 3.1、接口文档测试
 
-### 3.3 功能测试
+**测试前**，查询 employee 表中员工账号状态
 
-#### 3.3.1 接口文档测试
-
-**测试前，**查询employee表中员工账号状态
-
-<img src="assets/image-20221112143142457.png" alt="image-20221112143142457" style="zoom:67%;" /> 
+<img src="img/image44.png" alt="image44" style="zoom:67%;" /> 
 
 **开始测试**
 
-<img src="assets/image-20221112143316357.png" alt="image-20221112143316357" style="zoom:50%;" /> 
+<img src="img/image45.png" alt="image45" style="zoom:50%;" /> 
 
 **测试完毕后**，再次查询员工账号状态
 
-<img src="assets/image-20221112143428676.png" alt="image-20221112143428676" style="zoom: 67%;" /> 
+<img src="img/image46.png" alt="image46" style="zoom: 67%;" /> 
 
+### 3.2、前后端联调测试
 
+**测试前**：
 
-#### 3.3.2 前后端联调测试
-
-**测试前：**
-
-<img src="assets/image-20221112143552246.png" alt="image-20221112143552246" style="zoom: 33%;" /> 
+<img src="img/image47.png" alt="image47" style="zoom: 33%;" /> 
 
 **点击启用:**
 
-<img src="assets/image-20221112143655318.png" alt="image-20221112143655318" style="zoom:33%;" /> 
+<img src="img/image48.png" alt="image48" style="zoom:33%;" /> 
 
+## 4、代码提交
 
-
-### 3.4 代码提交
-
-<img src="assets/image-20221112143827631.png" alt="image-20221112143827631" style="zoom:50%;" /> 
+<img src="img/image49.png" alt="image49" style="zoom:50%;" /> 
 
 后续步骤和上述功能代码提交一致，不再赘述。
-
-
 
 # 四、编辑员工
 
