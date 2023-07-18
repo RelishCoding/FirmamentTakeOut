@@ -124,7 +124,7 @@ public class EmployeeDTO implements Serializable {
 
 ### 2.2、Controller层
 
- **EmployeeController 中创建新增员工方法**
+**EmployeeController 中创建新增员工方法**
 
 进入到 sky-server 模块中，在 com.sky.controller.admin 包下，在 EmployeeController 中创建新增员工方法，接收前端提交的参数。
 
@@ -1158,7 +1158,7 @@ void update(Employee employee);
 
 在 EmployeeMapper.xml 中编写SQL：
 
-```sql
+```xml
 <update id="update" parameterType="Employee">
 	update employee
 	<set>
@@ -1167,10 +1167,10 @@ void update(Employee employee);
         <if test="password != null">password = #{password},</if>
         <if test="phone != null">phone = #{phone},</if>
         <if test="sex != null">sex = #{sex},</if>
-        <if test="idNumber != null">id_Number = #{idNumber},</if>
-        <if test="updateTime != null">update_Time = #{updateTime},</if>
-        <if test="updateUser != null">update_User = #{updateUser},</if>
-        <if test="status != null">status = #{status},</if>
+        <if test="idNumber != null">id_number = #{idNumber},</if>
+        <if test="updateTime != null">update_time = #{updateTime},</if>
+        <if test="updateUser != null">update_user = #{updateUser},</if>
+        <if test="status != null">status = #{status}</if>
 	</set>
 	where id = #{id}
 </update>
@@ -1210,233 +1210,211 @@ void update(Employee employee);
 
 # 四、编辑员工
 
-### 4.1 需求分析与设计
+## 1、需求分析与设计
 
-#### 4.1.1 产品原型
+### 1.1、产品原型
 
 在员工管理列表页面点击 "编辑" 按钮，跳转到编辑页面，在编辑页面回显员工信息并进行修改，最后点击 "保存" 按钮完成编辑操作。
 
-**员工列表原型：**
+**员工列表原型**：
 
-<img src="assets/image-20221112144731759.png" alt="image-20221112144731759" style="zoom: 67%;" /> 
+<img src="img/image50.png" alt="image50" style="zoom: 67%;" /> 
 
 **修改页面原型**：
 
 注：点击修改时，数据应该正常回显到修改页面。
 
-<img src="assets/image-20221112144842825.png" alt="image-20221112144842825" style="zoom: 67%;" /> 
+<img src="img/image51.png" alt="image51" style="zoom: 67%;" /> 
 
-
-
-#### 4.1.2 接口设计
+### 1.2、接口设计
 
 根据上述原型图分析，编辑员工功能涉及到两个接口：
 
-- 根据id查询员工信息
+- 根据 id 查询员工信息（用于页面回显）
 - 编辑员工信息
 
-**1). 根据id查询员工信息**
+**1). 根据 id 查询员工信息**
 
-<img src="assets/image-20221112145607939.png" alt="image-20221112145607939" style="zoom:50%;" /> <img src="assets/image-20221112145619775.png" alt="image-20221112145619775" style="zoom:50%;" />
-
-
+<img src="img/image52.png" alt="image52" style="zoom:50%;" /> <img src="img/image53.png" alt="image53" style="zoom:50%;" />
 
 **2). 编辑员工信息**
 
-<img src="assets/image-20221112145643769.png" alt="image-20221112145643769" style="zoom:50%;" /> <img src="assets/image-20221112145659035.png" alt="image-20221112145659035" style="zoom:50%;" />
+<img src="img/image54.png" alt="image54" style="zoom:50%;" /> <img src="img/image55.png" alt="image55" style="zoom:50%;" />
 
-**注:因为是修改功能，请求方式可设置为PUT。**
+**注：因为是修改功能，请求方式可设置为 PUT**。
 
+## 2、代码开发
 
+### 2.1、回显员工信息功能
 
-### 4.2 代码开发
-
-#### 4.2.1 回显员工信息功能
-
-**1). Controller层**
+**1). Controller 层**
 
 在 EmployeeController 中创建 getById 方法：
 
 ```java
-	/**
-     * 根据id查询员工信息
-     * @param id
-     * @return
-     */
-    @GetMapping("/{id}")
-    @ApiOperation("根据id查询员工信息")
-    public Result<Employee> getById(@PathVariable Long id){
-        Employee employee = employeeService.getById(id);
-        return Result.success(employee);
-    }
+/**
+ * 根据id查询员工信息
+ * @param id
+ * @return
+ */
+@GetMapping("/{id}")
+@ApiOperation("根据id查询员工信息")
+public Result<Employee> getById(@PathVariable Long id){
+    Employee employee = employeeService.getById(id);
+    return Result.success(employee);
+}
 ```
 
-
-
-**2). Service层接口**
+**2). Service 层接口**
 
 在 EmployeeService 接口中声明 getById 方法：
 
 ```java
-    /**
-     * 根据id查询员工
-     * @param id
-     * @return
-     */
-    Employee getById(Long id);
+/**
+ * 根据id查询员工
+ * @param id
+ * @return
+ */
+Employee getById(Long id);
 ```
 
-
-
-**3). Service层实现类**
+**3). Service 层实现类**
 
 在 EmployeeServiceImpl 中实现 getById 方法：
 
 ```java
- 	/**
-     * 根据id查询员工
-     *
-     * @param id
-     * @return
-     */
-    public Employee getById(Long id) {
-        Employee employee = employeeMapper.getById(id);
-        employee.setPassword("****");
-        return employee;
-    }
+/**
+ * 根据id查询员工
+ *
+ * @param id
+ * @return
+ */
+public Employee getById(Long id) {
+    Employee employee = employeeMapper.getById(id);
+    employee.setPassword("****");
+    return employee;
+}
 ```
-
-
 
 **4). Mapper层**
 
 在 EmployeeMapper 接口中声明 getById 方法：
 
 ```java
-	/**
-     * 根据id查询员工信息
-     * @param id
-     * @return
-     */
-    @Select("select * from employee where id = #{id}")
-    Employee getById(Long id);
+/**
+ * 根据id查询员工信息
+ * @param id
+ * @return
+ */
+@Select("select * from employee where id = #{id}")
+Employee getById(Long id);
 ```
 
+可以先通过接口测试确认数据回显是否有问题，如果没有问题再继续开发
 
+### 2.2、修改员工信息功能
 
-#### 4.2.2 修改员工信息功能
-
-**1). Controller层**
+**1). Controller 层**
 
 在 EmployeeController 中创建 update 方法：
 
 ```java
-	/**
-     * 编辑员工信息
-     * @param employeeDTO
-     * @return
-     */
-    @PutMapping
-    @ApiOperation("编辑员工信息")
-    public Result update(@RequestBody EmployeeDTO employeeDTO){
-        log.info("编辑员工信息：{}", employeeDTO);
-        employeeService.update(employeeDTO);
-        return Result.success();
-    }
+/**
+ * 编辑员工信息
+ * @param employeeDTO
+ * @return
+ */
+@PutMapping
+@ApiOperation("编辑员工信息")
+public Result update(@RequestBody EmployeeDTO employeeDTO){
+    log.info("编辑员工信息：{}", employeeDTO);
+    employeeService.update(employeeDTO);
+    return Result.success();
+}
 ```
 
-
-
-**2). Service层接口**
+**2). Service 层接口**
 
 在 EmployeeService 接口中声明 update 方法：
 
 ```java
-    /**
-     * 编辑员工信息
-     * @param employeeDTO
-     */
-    void update(EmployeeDTO employeeDTO);
+/**
+ * 编辑员工信息
+ * @param employeeDTO
+ */
+void update(EmployeeDTO employeeDTO);
 ```
 
-
-
-**3). Service层实现类**
+**3). Service 层实现类**
 
 在 EmployeeServiceImpl 中实现 update 方法：
 
 ```java
- 	/**
-     * 编辑员工信息
-     *
-     * @param employeeDTO
-     */
-    public void update(EmployeeDTO employeeDTO) {
-        Employee employee = new Employee();
-        BeanUtils.copyProperties(employeeDTO, employee);
+/**
+ * 编辑员工信息
+ *
+ * @param employeeDTO
+ */
+public void update(EmployeeDTO employeeDTO) {
+    Employee employee = new Employee();
+    BeanUtils.copyProperties(employeeDTO, employee);
 
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+    employee.setUpdateTime(LocalDateTime.now());
+    employee.setUpdateUser(BaseContext.getCurrentId());
 
-        employeeMapper.update(employee);
-    }
+    employeeMapper.update(employee);
+}
 ```
 
-在实现**启用禁用员工账号**功能时，已实现employeeMapper.update(employee)，在此不需写Mapper层代码。
+在实现**启用禁用员工账号**功能时，已实现 employeeMapper.update(employee)，在此不需写 Mapper 层代码。
 
+## 3、功能测试
 
+### 3.1、接口文档测试
 
-### 4.3 功能测试
+分别测试**根据 id 查询员工信息**和**编辑员工信息**两个接口
 
-#### 4.3.1 接口文档测试
+**1). 根据 id 查询员工信息**
 
-分别测试**根据id查询员工信息**和**编辑员工信息**两个接口
+查询 employee 表中的数据，以 id=4 的记录为例
 
-**1). 根据id查询员工信息**
-
-查询employee表中的数据，以id=4的记录为例
-
-![image-20221112154253995](assets/image-20221112154253995.png)
+![image56](img/image56.png)
 
 开始测试
 
-<img src="assets/image-20221112154411245.png" alt="image-20221112154411245" style="zoom:50%;" /> 
+<img src="img/image57.png" alt="image57" style="zoom:50%;" /> 
 
-获取到了id=4的相关员工信息
+获取到了 id=4 的相关员工信息
 
 **2). 编辑员工信息**
 
-修改id=4的员工信息，**name**由**zhangsan**改为**张三丰**，**username**由**张三**改为**zhangsanfeng**。
+修改 id=4 的员工信息，**name** 由 **zhangsan**  改为**张三丰**，**username** 由**张三**改为 **zhangsanfeng**。
 
- <img src="assets/image-20221112155001414.png" alt="image-20221112155001414" style="zoom:50%;" /> 
+ <img src="img/image58.png" alt="image58" style="zoom:50%;" /> 
 
-查看employee表数据
+查看 employee 表数据
 
-![image-20221112155029547](assets/image-20221112155029547.png)
+![image59](img/image59.png)
 
-
-
-#### 4.3.2 前后端联调测试
+### 3.2、前后端联调测试
 
 进入到员工列表查询
 
-<img src="assets/image-20221112155206712.png" alt="image-20221112155206712" style="zoom:50%;" /> 
+<img src="img/image60.png" alt="image60" style="zoom:50%;" /> 
 
 对员工姓名为杰克的员工数据修改，点击修改，数据已回显
 
-<img src="assets/image-20221112155430652.png" alt="image-20221112155430652" style="zoom:50%;" /> 
+<img src="img/image61.png" alt="image61" style="zoom:50%;" /> 
 
 修改后，点击保存
 
-<img src="assets/image-20221112155559298.png" alt="image-20221112155559298" style="zoom:50%;" /> 
+<img src="img/image62.png" alt="image62" style="zoom:50%;" /> 
 
-### 4.4 代码提交
+## 4、代码提交
 
-<img src="assets/image-20221112155735984.png" alt="image-20221112155735984" style="zoom:50%;" /> 
+<img src="img/image63.png" alt="image63" style="zoom:50%;" /> 
 
 后续步骤和上述功能代码提交一致，不再赘述。
-
-
 
 # 五、导入分类模块功能代码
 
