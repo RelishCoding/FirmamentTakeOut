@@ -1418,108 +1418,99 @@ public void update(EmployeeDTO employeeDTO) {
 
 # 五、导入分类模块功能代码
 
-### 5.1 需求分析与设计
+## 1、需求分析与设计
 
-#### 5.1.1 产品原型
+### 1.1、产品原型
 
 后台系统中可以管理分类信息，分类包括两种类型，分别是 **菜品分类** 和 **套餐分类** 。
 
 先来分析**菜品分类**相关功能。
 
-**新增菜品分类：**当我们在后台系统中添加菜品时需要选择一个菜品分类，在移动端也会按照菜品分类来展示对应的菜品。
+* **新增菜品分类**：当我们在后台系统中添加菜品时需要选择一个菜品分类，在移动端也会按照菜品分类来展示对应的菜品。
 
-**菜品分类分页查询：**系统中的分类很多的时候，如果在一个页面中全部展示出来会显得比较乱，不便于查看，所以一般的系统中都会以分页的方式来展示列表数据。
+* **菜品分类分页查询**：系统中的分类很多的时候，如果在一个页面中全部展示出来会显得比较乱，不便于查看，所以一般的系统中都会以分页的方式来展示列表数据。
 
-**根据id删除菜品分类：**在分类管理列表页面，可以对某个分类进行删除操作。需要注意的是当分类关联了菜品或者套餐时，此分类不允许删除。
+* **根据 id 删除菜品分类**：在分类管理列表页面，可以对某个分类进行删除操作。需要注意的是当分类关联了菜品或者套餐时，此分类不允许删除。
+* **修改菜品分类**：在分类管理列表页面点击修改按钮，弹出修改窗口，在修改窗口回显分类信息并进行修改，最后点击确定按钮完成修改操作。
+* **启用禁用菜品分类**：在分类管理列表页面，可以对某个分类进行启用或者禁用操作。
+* **分类类型查询**：当点击分类类型下拉框时，从数据库中查询所有的菜品分类数据进行展示。
 
-**修改菜品分类：**在分类管理列表页面点击修改按钮，弹出修改窗口，在修改窗口回显分类信息并进行修改，最后点击确定按钮完成修改操作。
+**分类管理原型**：
 
-**启用禁用菜品分类：**在分类管理列表页面，可以对某个分类进行启用或者禁用操作。
+<img src="img/image64.png" alt="image64" style="zoom:50%;" /> 
 
-**分类类型查询：**当点击分类类型下拉框时，从数据库中查询所有的菜品分类数据进行展示。
-
-
-
-**分类管理原型：**
-
-<img src="assets/image-20221112160907419.png" alt="image-20221112160907419" style="zoom:50%;" /> 
-
-**业务规则：**
+**业务规则**：
 
 - 分类名称必须是唯一的
 - 分类按照类型可以分为菜品分类和套餐分类
-- 新添加的分类状态默认为“禁用”
+- 新添加的分类状态默认为 “禁用”
 
+### 1.2、接口设计
 
-
-#### 5.1.2 接口设计
-
-根据上述原型图分析，菜品分类模块共涉及6个接口。
+根据上述原型图分析，菜品分类模块共涉及 6 个接口。
 
 - 新增分类
 - 分类分页查询
-- 根据id删除分类
+- 根据 id 删除分类
 - 修改分类
 - 启用禁用分类
 - 根据类型查询分类
 
 接下来，详细地分析每个接口。
 
-找到资料-->项目接口文档-->苍穹外卖-管理端接口.html
+找到资料 —> 项目接口文档 —> 苍穹外卖-管理端接口.html
 
 **1). 新增分类**
 
-<img src="assets/image-20221112163011291.png" alt="image-20221112163011291" style="zoom: 67%;" /> <img src="assets/image-20221112163044547.png" alt="image-20221112163044547" style="zoom:67%;" />
+<img src="img/image65.png" alt="image65" style="zoom: 67%;" /> <img src="img/image66.png" alt="image66" style="zoom:67%;" />
 
 **2). 分类分页查询**
 
-<img src="assets/image-20221112163209383.png" alt="image-20221112163209383" style="zoom:50%;" /><img src="assets/image-20221112163233212.png" alt="image-20221112163233212" style="zoom:50%;" />
+<img src="img/image67.png" alt="image67" style="zoom:50%;" /><img src="img/image68.png" alt="image68" style="zoom:50%;" />
 
-**3). 根据id删除分类**
+**3). 根据 id 删除分类**
 
-<img src="assets/image-20221112163323554.png" alt="image-20221112163323554" style="zoom:50%;" /> 
+<img src="img/image69.png" alt="image69" style="zoom:50%;" /> 
 
 **4). 修改分类**
 
-<img src="assets/image-20221112163424457.png" alt="image-20221112163424457" style="zoom:50%;" /> <img src="assets/image-20221112163445296.png" alt="image-20221112163445296" style="zoom:50%;" />
+<img src="img/image70.png" alt="image70" style="zoom:50%;" /> <img src="img/image71.png" alt="image71" style="zoom:50%;" />
 
 **5). 启用禁用分类**
 
-<img src="assets/image-20221112163557247.png" alt="image-20221112163557247" style="zoom:50%;" /> <img src="assets/image-20221112163622896.png" alt="image-20221112163622896" style="zoom:50%;" />
+<img src="img/image72.png" alt="image72" style="zoom:50%;" /> <img src="img/image73.png" alt="image73" style="zoom:50%;" />
 
 **6). 根据类型查询分类**
 
-<img src="assets/image-20221112163806318.png" alt="image-20221112163806318" style="zoom:50%;" /> <img src="assets/image-20221112163839168.png" alt="image-20221112163839168" style="zoom:50%;" />
+<img src="img/image74.png" alt="image74" style="zoom:50%;" /> <img src="img/image75.png" alt="image75" style="zoom:50%;" />
 
-#### 5.1.3 表设计
+### 1.3、表设计
 
-**category表结构：**
+**category 表结构**：
 
-| **字段名**  | **数据类型** | **说明**     | **备注**            |
-| ----------- | ------------ | ------------ | ------------------- |
-| id          | bigint       | 主键         | 自增                |
-| name        | varchar(32)  | 分类名称     | 唯一                |
-| type        | int          | 分类类型     | 1菜品分类 2套餐分类 |
-| sort        | int          | 排序字段     | 用于分类数据的排序  |
-| status      | int          | 状态         | 1启用 0禁用         |
-| create_time | datetime     | 创建时间     |                     |
-| update_time | datetime     | 最后修改时间 |                     |
-| create_user | bigint       | 创建人id     |                     |
-| update_user | bigint       | 最后修改人id |                     |
+| **字段名**  | **数据类型** | **说明**      | **备注**               |
+| ----------- | ------------ | ------------- | ---------------------- |
+| id          | bigint       | 主键          | 自增                   |
+| name        | varchar(32)  | 分类名称      | 唯一                   |
+| type        | int          | 分类类型      | 1 菜品分类，2 套餐分类 |
+| sort        | int          | 排序字段      | 用于分类数据的排序     |
+| status      | int          | 状态          | 1 启用，0 禁用         |
+| create_time | datetime     | 创建时间      |                        |
+| update_time | datetime     | 最后修改时间  |                        |
+| create_user | bigint       | 创建人 id     |                        |
+| update_user | bigint       | 最后修改人 id |                        |
 
-
-
-### 5.2 代码导入
+## 2、代码导入
 
 导入资料中的分类管理模块功能代码即可
 
-<img src="assets/image-20221112164259732.png" alt="image-20221112164259732" style="zoom:50%;" /> 
+<img src="img/image76.png" alt="image76" style="zoom:50%;" /> 
 
-可按照mapper-->service-->controller依次导入，这样代码不会显示相应的报错。
+可按照 mapper —> service —> controller 依次导入，这样代码不会显示相应的报错。
 
-进入到sky-server模块中
+进入到 sky-server 模块中
 
-#### 5.2.1 Mapper层
+### 2.1、Mapper层
 
 **DishMapper.java**
 
@@ -1531,7 +1522,6 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface DishMapper {
-
     /**
      * 根据分类id查询菜品数量
      * @param categoryId
@@ -1539,9 +1529,7 @@ public interface DishMapper {
      */
     @Select("select count(id) from dish where category_id = #{categoryId}")
     Integer countByCategoryId(Long categoryId);
-
 }
-
 ```
 
 **SetmealMapper.java**
@@ -1554,7 +1542,6 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface SetmealMapper {
-
     /**
      * 根据分类id查询套餐的数量
      * @param id
@@ -1562,7 +1549,6 @@ public interface SetmealMapper {
      */
     @Select("select count(id) from setmeal where category_id = #{categoryId}")
     Integer countByCategoryId(Long id);
-
 }
 ```
 
@@ -1621,7 +1607,7 @@ public interface CategoryMapper {
 }
 ```
 
-**CategoryMapper.xml**,进入到resources/mapper目录下
+在 resources/mapper 目录下创建 CategoryMapper.xml
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -1676,12 +1662,9 @@ public interface CategoryMapper {
         order by sort asc,create_time desc
     </select>
 </mapper>
-
 ```
 
-
-
-#### 5.2.2 Service层
+### 2.2、Service层
 
 **CategoryService.java**
 
@@ -1695,7 +1678,6 @@ import com.sky.result.PageResult;
 import java.util.List;
 
 public interface CategoryService {
-
     /**
      * 新增分类
      * @param categoryDTO
@@ -1735,10 +1717,9 @@ public interface CategoryService {
      */
     List<Category> list(Integer type);
 }
-
 ```
 
-**EmployeeServiceImpl.java**
+**CategoryServiceImpl.java**
 
 ```java
 package com.sky.service.impl;
@@ -1746,164 +1727,142 @@ package com.sky.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
-import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.EmployeeDTO;
-import com.sky.dto.EmployeeLoginDTO;
-import com.sky.dto.EmployeePageQueryDTO;
-import com.sky.entity.Employee;
-import com.sky.exception.AccountLockedException;
-import com.sky.exception.AccountNotFoundException;
-import com.sky.exception.PasswordErrorException;
-import com.sky.mapper.EmployeeMapper;
+import com.sky.dto.CategoryDTO;
+import com.sky.dto.CategoryPageQueryDTO;
+import com.sky.entity.Category;
+import com.sky.exception.DeletionNotAllowedException;
+import com.sky.mapper.CategoryMapper;
+import com.sky.mapper.DishMapper;
+import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
-import com.sky.service.EmployeeService;
+import com.sky.service.CategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 分类业务层
+ */
 @Service
-public class EmployeeServiceImpl implements EmployeeService {
-
+@Slf4j
+public class CategoryServiceImpl  implements CategoryService {
     @Autowired
-    private EmployeeMapper employeeMapper;
+    private CategoryMapper categoryMapper;
+    @Autowired
+    private DishMapper dishMapper;
+    @Autowired
+    private SetmealMapper setmealMapper;
 
     /**
-     * 员工登录
-     *
-     * @param employeeLoginDTO
-     * @return
+     * 新增分类
+     * @param categoryDTO
      */
-    public Employee login(EmployeeLoginDTO employeeLoginDTO) {
-        String username = employeeLoginDTO.getUsername();
-        String password = employeeLoginDTO.getPassword();
+    @Override
+    public void save(CategoryDTO categoryDTO) {
+        Category category = new Category();
+        //属性拷贝
+        BeanUtils.copyProperties(categoryDTO,category);
 
-        //1、根据用户名查询数据库中的数据
-        Employee employee = employeeMapper.getByUsername(username);
+        //分类状态默认为禁用状态0
+        category.setStatus(StatusConstant.DISABLE);
 
-        //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
-        if (employee == null) {
-            //账号不存在
-            throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
-        }
+        //设置创建时间、修改时间、创建人、修改人
+        category.setCreateTime(LocalDateTime.now());
+        category.setUpdateTime(LocalDateTime.now());
+        category.setCreateUser(BaseContext.getCurrentId());
+        category.setUpdateUser(BaseContext.getCurrentId());
 
-        //密码比对
-        // TODO 后期需要进行md5加密，然后再进行比对
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        if (!password.equals(employee.getPassword())) {
-            //密码错误
-            throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
-        }
-
-        if (employee.getStatus() == StatusConstant.DISABLE) {
-            //账号被锁定
-            throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
-        }
-
-        //3、返回实体对象
-        return employee;
-    }
-
-    /**
-     * 新增员工
-     *
-     * @param employeeDTO
-     */
-    public void save(EmployeeDTO employeeDTO) {
-        Employee employee = new Employee();
-
-        //对象属性拷贝
-        BeanUtils.copyProperties(employeeDTO, employee);
-
-        //设置账号的状态，默认正常状态 1表示正常 0表示锁定
-        employee.setStatus(StatusConstant.ENABLE);
-
-        //设置密码，默认密码123456
-        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
-
-        //设置当前记录的创建时间和修改时间
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-
-        //设置当前记录创建人id和修改人id
-        employee.setCreateUser(BaseContext.getCurrentId());//目前写个假数据，后期修改
-        employee.setUpdateUser(BaseContext.getCurrentId());
-
-        employeeMapper.insert(employee);
+        categoryMapper.insert(category);
     }
 
     /**
      * 分页查询
-     *
-     * @param employeePageQueryDTO
+     * @param categoryPageQueryDTO
      * @return
      */
-    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
-        // select * from employee limit 0,10
-        //开始分页查询
-        PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
-
-        Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
-
-        long total = page.getTotal();
-        List<Employee> records = page.getResult();
-
-        return new PageResult(total, records);
+    @Override
+    public PageResult pageQuery(CategoryPageQueryDTO categoryPageQueryDTO) {
+        PageHelper.startPage(categoryPageQueryDTO.getPage(),categoryPageQueryDTO.getPageSize());
+        //下一条sql进行分页，自动加入limit关键字分页
+        Page<Category> page = categoryMapper.pageQuery(categoryPageQueryDTO);
+        return new PageResult(page.getTotal(),page.getResult());
     }
 
     /**
-     * 启用禁用员工账号
-     *
+     * 根据id删除分类
+     * @param id
+     */
+    @Override
+    public void deleteById(Long id) {
+        //查询当前分类是否关联了菜品，如果关联了就抛出业务异常
+        Integer count = dishMapper.countByCategoryId(id);
+        if (count > 0){
+            //当前分类下有菜品，不能删除
+            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);
+        }
+
+        //查询当前分类是否关联了套餐，如果关联了就抛出业务异常
+        count = setmealMapper.countByCategoryId(id);
+        if (count > 0){
+            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_SETMEAL);
+        }
+
+        //删除分类数据
+        categoryMapper.deleteById(id);
+    }
+
+    /**
+     * 修改分类
+     * @param categoryDTO
+     */
+    @Override
+    public void update(CategoryDTO categoryDTO) {
+        Category category = new Category();
+        BeanUtils.copyProperties(categoryDTO,category);
+
+        //设置修改时间、修改人
+        category.setUpdateTime(LocalDateTime.now());
+        category.setUpdateUser(BaseContext.getCurrentId());
+
+        categoryMapper.update(category);
+    }
+
+    /**
+     * 启用、禁用分类
      * @param status
      * @param id
      */
+    @Override
     public void startOrStop(Integer status, Long id) {
-        Employee employee = Employee.builder()
-                .status(status)
+        Category category = Category.builder()
                 .id(id)
+                .status(status)
+                .updateTime(LocalDateTime.now())
+                .updateUser(BaseContext.getCurrentId())
                 .build();
 
-        employeeMapper.update(employee);
+        categoryMapper.update(category);
     }
 
     /**
-     * 根据id查询员工
-     *
-     * @param id
+     * 根据类型查询分类
+     * @param type
      * @return
      */
-    public Employee getById(Long id) {
-        Employee employee = employeeMapper.getById(id);
-        employee.setPassword("****");
-        return employee;
+    @Override
+    public List<Category> list(Integer type) {
+        return categoryMapper.list(type);
     }
-
-    /**
-     * 编辑员工信息
-     *
-     * @param employeeDTO
-     */
-    public void update(EmployeeDTO employeeDTO) {
-        Employee employee = new Employee();
-        BeanUtils.copyProperties(employeeDTO, employee);
-
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
-
-        employeeMapper.update(employee);
-    }
-
 }
 ```
 
-
-
-#### 5.2.3 Controller层
+### 2.3、Controller层
 
 **CategoryController.java**
 
@@ -1931,7 +1890,6 @@ import java.util.List;
 @Api(tags = "分类相关接口")
 @Slf4j
 public class CategoryController {
-
     @Autowired
     private CategoryService categoryService;
 
@@ -2015,63 +1973,60 @@ public class CategoryController {
 
 全部导入完毕后，进行编译
 
-<img src="assets/image-20221112170742400.png" alt="image-20221112170742400" style="zoom:50%;" /> 
+<img src="img/image77.png" alt="image77" style="zoom:50%;" /> 
 
-### 5.3 功能测试
+## 3、功能测试
 
-重启服务，访问http://localhost:80,进入分类管理
+重启服务，访问 http://localhost:80，进入分类管理
 
-**分页查询：**
+**分页查询**：
 
-<img src="assets/image-20221112171252992.png" alt="image-20221112171252992" style="zoom:50%;" /> 
+<img src="img/image78.png" alt="image78" style="zoom:50%;" /> 
 
-**分类类型：**
+**分类类型**：
 
-<img src="assets/image-20221112171402210.png" alt="image-20221112171402210" style="zoom:50%;" /> 
+<img src="img/image79.png" alt="image79" style="zoom:50%;" /> 
 
-**启用禁用：**
+**启用禁用**：
 
-<img src="assets/image-20221112171604991.png" alt="image-20221112171604991" style="zoom:50%;" /> 
+<img src="img/image80.png" alt="image80" style="zoom:50%;" /> 
 
 点击禁用
 
-<img src="assets/image-20221112171700774.png" alt="image-20221112171700774" style="zoom:50%;" /> 
+<img src="img/image81.png" alt="image81" style="zoom:50%;" /> 
 
-**修改：**
+**修改**：
 
 回显
 
-<img src="assets/image-20221112172117834.png" alt="image-20221112172117834" style="zoom:50%;" />  
+<img src="img/image82.png" alt="image82" style="zoom:50%;" />  
 
 修改后
 
-<img src="assets/image-20221112172150709.png" alt="image-20221112172150709" style="zoom:50%;" />
+<img src="img/image83.png" alt="image83" style="zoom:50%;" />
 
-**新增：**
+**新增**：
 
-<img src="assets/image-20221112172356093.png" alt="image-20221112172356093" style="zoom:50%;" /> 
+<img src="img/image84.png" alt="image84" style="zoom:50%;" /> 
 
 点击确定，查询列表
 
-<img src="assets/image-20221112172439370.png" alt="image-20221112172439370" style="zoom:50%;" /> 
+<img src="img/image85.png" alt="image85" style="zoom:50%;" /> 
 
-**删除：**
+**删除**：
 
-<img src="assets/image-20221112172525216.png" alt="image-20221112172525216" style="zoom:50%;" /> 
+<img src="img/image86.png" alt="image86" style="zoom:50%;" /> 
 
 删除后，查询分类列表
 
-<img src="assets/image-20221112172611754.png" alt="image-20221112172611754" style="zoom:50%;" /> 
+<img src="img/image87.png" alt="image87" style="zoom:50%;" /> 
 
 删除成功
 
-### 5.4 代码提交
+## 4、代码提交
 
-<img src="assets/image-20221112173205048.png" alt="image-20221112173205048" style="zoom:50%;" /> 
+<img src="img/image88.png" alt="image88" style="zoom:50%;" /> 
 
 后续步骤和上述功能代码提交一致，不再赘述。
-
-
-
 
 
