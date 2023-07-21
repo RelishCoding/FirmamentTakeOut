@@ -477,51 +477,43 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 以**新增菜品分类**为例，进行测试
 
-**启动项目和Nginx**
+**启动项目和 Nginx**
 
-<img src="assets/image-20221121154642757.png" alt="image-20221121154642757" style="zoom:50%;" /> 
+<img src="img/image2.png" alt="image2" style="zoom:50%;" /> 
 
 **查看控制台**
 
-通过观察控制台输出的SQL来确定公共字段填充是否完成
+通过观察控制台输出的 SQL 来确定公共字段填充是否完成
 
-![image-20221121154841887](assets/image-20221121154841887.png)
+![image3](img/image3.png)
 
 **查看表**
 
-category表中数据
+category 表中数据
 
-![image-20221121155104152](assets/image-20221121155104152.png)
+![image4](img/image4.png)
 
-其中create_time,update_time,create_user,update_user字段都已完成自动填充。
+其中 create_time、update_time、create_user、update_user 字段都已完成自动填充。
 
-由于使用admin(id=1)用户登录进行菜品添加操作,故create_user,update_user都为1.
-
-
+由于使用 admin(id=1) 用户登录进行菜品添加操作，故 create_user、update_user 都为 1。
 
 ## 5、代码提交
 
-**点击提交：**
+**点击提交**：
 
-<img src="assets/image-20221121155718603.png" alt="image-20221121155718603" style="zoom:50%;" /> 
-
-
+<img src="img/image5.png" alt="image5" style="zoom:50%;" /> 
 
 **提交过程中**，出现提示：
 
-<img src="assets/image-20221121155824695.png" alt="image-20221121155824695" style="zoom:50%;" /> 
+<img src="img/image6.png" alt="image6" style="zoom:50%;" /> 
 
+**继续 push**：
 
+<img src="img/image7.png" alt="image7" style="zoom:50%;" /> 
 
-**继续push:**
+**推送成功**：
 
-<img src="assets/image-20221121160002324.png" alt="image-20221121160002324" style="zoom:50%;" /> 
-
-**推送成功：**
-
-<img src="assets/image-20221121160037460.png" alt="image-20221121160037460" style="zoom: 67%;" /> 
-
-
+<img src="img/image8.png" alt="image8" style="zoom: 67%;" /> 
 
 # 二、新增菜品
 
