@@ -1301,148 +1301,132 @@ Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
 
 # 四、删除菜品
 
-### 4.1 需求分析和设计
+## 1、需求分析和设计
 
-#### 4.1.1 产品原型
+### 1.1、产品原型
 
 在菜品列表页面，每个菜品后面对应的操作分别为**修改**、**删除**、**停售**，可通过删除功能完成对菜品及相关的数据进行删除。
 
-**删除菜品原型：**
+**删除菜品原型**：
 
-<img src="assets/image-20221121211236356.png" alt="image-20221121211236356" style="zoom:67%;" /> 
+<img src="img/image29.png" alt="image29" style="zoom:67%;" /> 
 
-
-
-**业务规则：**
+**业务规则**：
 
 - 可以一次删除一个菜品，也可以批量删除菜品
 - 起售中的菜品不能删除
 - 被套餐关联的菜品不能删除
 - 删除菜品后，关联的口味数据也需要删除掉
 
-
-
-#### 4.1.2 接口设计
+### 1.2、接口设计
 
 根据上述原型图，设计出相应的接口。
 
-<img src="assets/image-20221121211801121.png" alt="image-20221121211801121" style="zoom:50%;" /> <img src="assets/image-20221121211814429.png" alt="image-20221121211814429" style="zoom:50%;" />
+<img src="img/image30.png" alt="image30" style="zoom:50%;" /> <img src="img/image31.png" alt="image31" style="zoom:50%;" />
 
-**注意：**删除一个菜品和批量删除菜品共用一个接口，故ids可包含多个菜品id,之间用逗号分隔。
+**注意：**删除一个菜品和批量删除菜品共用一个接口，故 ids 可包含多个菜品 id，之间用逗号分隔。
 
-
-
-#### 4.1.3 表设计
+### 1.3、表设计
 
 在进行删除菜品操作时，会涉及到以下三张表。
 
-<img src="assets/image-20221121212436851.png" alt="image-20221121212436851" style="zoom:50%;" /> 
+<img src="img/image32.png" alt="image32" style="zoom:50%;" /> 
 
-**注意事项：**
+**注意事项**：
 
-- 在dish表中删除菜品基本数据时，同时，也要把关联在dish_flavor表中的数据一块删除。
-- setmeal_dish表为菜品和套餐关联的中间表。
+- 在 dish 表中删除菜品基本数据时，同时也要把关联在 dish_flavor 表中的数据一块删除。
+- setmeal_dish 表为菜品和套餐关联的中间表。
 - 若删除的菜品数据关联着某个套餐，此时，删除失败。
 - 若要删除套餐关联的菜品数据，先解除两者关联，再对菜品进行删除。
 
+## 2、代码开发
 
+### 2.1、Controller 层
 
-### 4.2 代码开发
-
-#### 4.1.2 Controller层
-
-**根据删除菜品的接口定义在DishController中创建方法：**
+**根据删除菜品的接口定义在 DishController 中创建方法**：
 
 ```java
-	/**
-     * 菜品批量删除
-     *
-     * @param ids
-     * @return
-     */
-    @DeleteMapping
-    @ApiOperation("菜品批量删除")
-    public Result delete(@RequestParam List<Long> ids) {
-        log.info("菜品批量删除：{}", ids);
-        dishService.deleteBatch(ids);//后绪步骤实现
-        return Result.success();
-    }
+/**
+ * 菜品批量删除
+ * @param ids
+ * @return
+ */
+@DeleteMapping
+@ApiOperation("菜品批量删除")
+public Result delete(@RequestParam List<Long> ids) {
+    log.info("菜品批量删除：{}", ids);
+    dishService.deleteBatch(ids);
+    return Result.success();
+}
 ```
 
+### 2.2、Service 层接口
 
-
-#### 4.2.2 Service层接口
-
-**在DishService接口中声明deleteBatch方法：**
+**在 DishService 接口中声明 deleteBatch 方法**：
 
 ```java
-	/**
-     * 菜品批量删除
-     *
-     * @param ids
-     */
-    void deleteBatch(List<Long> ids);
+/**
+ * 菜品批量删除
+ * @param ids
+ */
+void deleteBatch(List<Long> ids);
 ```
 
+### 2.3、Service 层实现类
 
-
-#### 4.2.3 Service层实现类
-
-**在DishServiceImpl中实现deleteBatch方法：**
+**在 DishServiceImpl 中实现 deleteBatch 方法**：
 
 ```java
-    @Autowired
-    private SetmealDishMapper setmealDishMapper;
-	/**
-     * 菜品批量删除
-     *
-     * @param ids
-     */
-    @Transactional//事务
-    public void deleteBatch(List<Long> ids) {
-        //判断当前菜品是否能够删除---是否存在起售中的菜品？？
-        for (Long id : ids) {
-            Dish dish = dishMapper.getById(id);//后绪步骤实现
-            if (dish.getStatus() == StatusConstant.ENABLE) {
-                //当前菜品处于起售中，不能删除
-                throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
-            }
-        }
+@Autowired
+private SetmealDishMapper setmealDishMapper;
 
-        //判断当前菜品是否能够删除---是否被套餐关联了？？
-        List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishIds(ids);
-        if (setmealIds != null && setmealIds.size() > 0) {
-            //当前菜品被套餐关联了，不能删除
-            throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
-        }
-
-        //删除菜品表中的菜品数据
-        for (Long id : ids) {
-            dishMapper.deleteById(id);//后绪步骤实现
-            //删除菜品关联的口味数据
-            dishFlavorMapper.deleteByDishId(id);//后绪步骤实现
+/**
+ * 菜品批量删除
+ * @param ids
+ */
+@Override
+@Transactional//事务
+public void deleteBatch(List<Long> ids) {
+    //判断当前菜品是否能够删除---是否存在起售中的菜品？
+    for (Long id : ids) {
+        Dish dish = dishMapper.getById(id);//后续步骤实现
+        if (dish.getStatus() == StatusConstant.ENABLE) {
+            //当前菜品处于起售中，不能删除
+            throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
         }
     }
+
+    //判断当前菜品是否能够删除---是否被套餐关联了？
+    List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishIds(ids);
+    if (setmealIds != null && setmealIds.size() > 0) {
+        //当前菜品被套餐关联了，不能删除
+        throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
+    }
+
+    //删除菜品表中的菜品数据
+    for (Long id : ids) {
+        dishMapper.deleteById(id);//后续步骤实现
+        //删除菜品关联的口味数据
+        dishFlavorMapper.deleteByDishId(id);//后续步骤实现
+    }
+}
 ```
 
+### 2.4、Mapper 层
 
-
-#### 4.2.4 Mapper层
-
-**在DishMapper中声明getById方法，并配置SQL：**
+**在 DishMapper 中声明 getById 方法，并配置 SQL**：
 
 ```java
-	/**
-     * 根据主键查询菜品
-     *
-     * @param id
-     * @return
-     */
-    @Select("select * from dish where id = #{id}")
-    Dish getById(Long id);
+/**
+ * 根据主键查询菜品
+ * @param id
+ * @return
+ */
+@Select("select * from dish where id = #{id}")
+Dish getById(Long id);
 ```
 
-**创建SetmealDishMapper，声明getSetmealIdsByDishIds方法，并在xml文件中编写SQL：**
+**创建 SetmealDishMapper，声明 getSetmealIdsByDishIds 方法，并在 xml 文件中编写 SQL**：
 
 ```java
 package com.sky.mapper;
@@ -1456,14 +1440,12 @@ import java.util.List;
 public interface SetmealDishMapper {
     /**
      * 根据菜品id查询对应的套餐id
-     *
      * @param dishIds
      * @return
      */
     //select setmeal_id from setmeal_dish where dish_id in (1,2,3,4)
     List<Long> getSetmealIdsByDishIds(List<Long> dishIds);
 }
-
 ```
 
 SetmealDishMapper.xml
@@ -1472,6 +1454,7 @@ SetmealDishMapper.xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
 <mapper namespace="com.sky.mapper.SetmealDishMapper">
     <select id="getSetmealIdsByDishIds" resultType="java.lang.Long">
         select setmeal_id from setmeal_dish where dish_id in
@@ -1482,64 +1465,57 @@ SetmealDishMapper.xml
 </mapper>
 ```
 
-**在DishMapper.java中声明deleteById方法并配置SQL：**
+**在 DishMapper.java 中声明 deleteById 方法并配置 SQL**：
 
 ```java
-	/**
-     * 根据主键删除菜品数据
-     *
-     * @param id
-     */
-    @Delete("delete from dish where id = #{id}")
-    void deleteById(Long id);
+/**
+ * 根据主键删除菜品数据
+ * @param id
+ */
+@Delete("delete from dish where id = #{id}")
+void deleteById(Long id);
 ```
 
-**在DishFlavorMapper中声明deleteByDishId方法并配置SQL：**
+**在 DishFlavorMapper 中声明 deleteByDishId 方法并配置SQL**：
 
 ```java
-    /**
-     * 根据菜品id删除对应的口味数据
-     * @param dishId
-     */
-    @Delete("delete from dish_flavor where dish_id = #{dishId}")
-    void deleteByDishId(Long dishId);
+/**
+ * 根据菜品id删除对应的口味数据
+ * @param dishId
+ */
+@Delete("delete from dish_flavor where dish_id = #{dishId}")
+void deleteByDishId(Long dishId);
 ```
 
+## 3、功能测试
 
-
-### 4.3 功能测试
-
-既可以通过Swagger接口文档进行测试，也可以通过前后端联调测试，接下来，我们直接使用**前后端联调测试**。
+既可以通过 Swagger 接口文档进行测试，也可以通过前后端联调测试，接下来，我们直接使用**前后端联调测试**。
 
 进入到菜品列表查询页面
 
-<img src="assets/image-20221122125332084.png" alt="image-20221122125332084" style="zoom:50%;" /> 
+<img src="img/image33.png" alt="image33" style="zoom:50%;" /> 
 
 对测试菜品进行删除操作
 
-<img src="assets/image-20221122125625014.png" alt="image-20221122125625014" style="zoom:50%;" /> 
+<img src="img/image34.png" alt="image34" style="zoom:50%;" /> 
 
-同时，进到dish表和dish_flavor两个表查看**测试菜品**的相关数据都已被成功删除。
-
-
+同时，进到 dish 表和 dish_flavor 两个表查看**测试菜品**的相关数据都已被成功删除。
 
 再次，删除状态为启售的菜品
 
-<img src="assets/image-20221122125841464.png" alt="image-20221122125841464" style="zoom:50%;" /> 
+<img src="img/image35.png" alt="image35" style="zoom:50%;" /> 
 
 点击批量删除
 
-<img src="assets/image-20221122130016566.png" alt="image-20221122130016566" style="zoom:50%;" /> 
+<img src="img/image36.png" alt="image36" style="zoom:50%;" /> 
 
 删除失败，因为起售中的菜品不能删除。
 
-### 4.4 代码提交
+## 4、代码提交
 
-<img src="assets/image-20221122130426605.png" alt="image-20221122130426605" style="zoom:50%;" /> 
+<img src="img/image37.png" alt="image" style="zoom:50%;" /> 
 
 后续步骤和上述功能代码提交一致，不再赘述。
-
-
 
 # 5、修改菜品
 
