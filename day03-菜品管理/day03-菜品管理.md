@@ -1094,41 +1094,37 @@ dish_flavor 表：
 
 # 三、菜品分页查询
 
-### 3.1 需求分析和设计
+## 1、需求分析和设计
 
-#### 3.1.1 产品原型
+###  1.1、产品原型
 
 系统中的菜品数据很多的时候，如果在一个页面中全部展示出来会显得比较乱，不便于查看，所以一般的系统中都会以分页的方式来展示列表数据。
 
-**菜品分页原型：**
+**菜品分页原型**：
 
-<img src="assets/image-20221121201552489.png" alt="image-20221121201552489" style="zoom: 67%;" /> 
+<img src="img/image23.png" alt="image23" style="zoom: 67%;" /> 
 
-在菜品列表展示时，除了菜品的基本信息(名称、售价、售卖状态、最后操作时间)外，还有两个字段略微特殊，第一个是图片字段 ，我们从数据库查询出来的仅仅是图片的名字，图片要想在表格中回显展示出来，就需要下载这个图片。第二个是菜品分类，这里展示的是分类名称，而不是分类ID，此时我们就需要根据菜品的分类ID，去分类表中查询分类信息，然后在页面展示。
+在菜品列表展示时，除了菜品的基本信息（名称、售价、售卖状态、最后操作时间）外，还有两个字段略微特殊，第一个是图片字段 ，我们从数据库查询出来的仅仅是图片的名字，图片要想在表格中回显展示出来，就需要下载这个图片。第二个是菜品分类，这里展示的是分类名称，而不是分类 ID，此时我们就需要根据菜品的分类 ID，去分类表中查询分类信息，然后在页面展示。
 
-**业务规则：**
+**业务规则**：
 
 - 根据页码展示菜品信息
-- 每页展示10条数据
+- 每页展示 10 条数据
 - 分页查询时可以根据需要输入菜品名称、菜品分类、菜品状态进行查询
 
-
-
-#### 3.1.2 接口设计
+### 1.2、接口设计
 
 根据上述原型图，设计出相应的接口。
 
-<img src="assets/image-20221121202019258.png" alt="image-20221121202019258" style="zoom:50%;" /> <img src="assets/image-20221121202033284.png" alt="image-20221121202033284" style="zoom:50%;" />
+<img src="img/image24.png" alt="image24" style="zoom:50%;" /> <img src="img/image25.png" alt="image25" style="zoom:50%;" />
 
+## 2、代码开发
 
+### 2.1、设计 DTO 类
 
-### 3.2 代码开发
+**根据菜品分页查询接口定义设计对应的 DTO**：
 
-#### 3.2.1 设计DTO类
-
-**根据菜品分页查询接口定义设计对应的DTO：**
-
-在sky-pojo模块中，已定义
+在 sky-pojo 模块中，已定义
 
 ```java
 package com.sky.dto;
@@ -1148,13 +1144,11 @@ public class DishPageQueryDTO implements Serializable {
 }
 ```
 
+### 2.2、设计 VO 类
 
+**根据菜品分页查询接口定义设计对应的 VO**：
 
-#### 3.2.2 设计VO类
-
-**根据菜品分页查询接口定义设计对应的VO：**
-
-在sky-pojo模块中，已定义
+在 sky-pojo 模块中，已定义
 
 ```java
 package com.sky.vo;
@@ -1198,129 +1192,112 @@ public class DishVO implements Serializable {
 }
 ```
 
+### 2.3、Controller 层
 
-
-#### 3.2.3 Controller层
-
-**根据接口定义创建DishController的page分页查询方法：**
+**根据接口定义创建 DishController 的 page 分页查询方法**：
 
 ```java
-	/**
-     * 菜品分页查询
-     *
-     * @param dishPageQueryDTO
-     * @return
-     */
-    @GetMapping("/page")
-    @ApiOperation("菜品分页查询")
-    public Result<PageResult> page(DishPageQueryDTO dishPageQueryDTO) {
-        log.info("菜品分页查询:{}", dishPageQueryDTO);
-        PageResult pageResult = dishService.pageQuery(dishPageQueryDTO);//后绪步骤定义
-        return Result.success(pageResult);
-    }
+/**
+ * 菜品分页查询
+ * @param dishPageQueryDTO
+ * @return
+ */
+@GetMapping("/page")
+@ApiOperation("菜品分页查询")
+public Result<PageResult> page(DishPageQueryDTO dishPageQueryDTO) {
+    log.info("菜品分页查询:{}", dishPageQueryDTO);
+    PageResult pageResult = dishService.pageQuery(dishPageQueryDTO);
+    return Result.success(pageResult);
+}
 ```
 
+### 2.4、Service 层接口
 
-
-#### 3.2.4 Service层接口
-
-**在 DishService 中扩展分页查询方法：**
+**在 DishService 中扩展分页查询方法**：
 
 ```java
-	/**
-     * 菜品分页查询
-     *
-     * @param dishPageQueryDTO
-     * @return
-     */
-    PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO);
+/**
+ * 菜品分页查询
+ * @param dishPageQueryDTO
+ * @return
+ */
+PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO);
 ```
 
+### 2.5、Service 层实现类
 
-
-#### 3.2.5 Service层实现类
-
-**在 DishServiceImpl 中实现分页查询方法：**
+**在 DishServiceImpl 中实现分页查询方法**：
 
 ```java
-	/**
-     * 菜品分页查询
-     *
-     * @param dishPageQueryDTO
-     * @return
-     */
-    public PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO) {
-        PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
-        Page<DishVO> page = dishMapper.pageQuery(dishPageQueryDTO);//后绪步骤实现
-        return new PageResult(page.getTotal(), page.getResult());
-    }
+/**
+ * 菜品分页查询
+ * @param dishPageQueryDTO
+ * @return
+ */
+@Override
+public PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO) {
+    PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
+    Page<DishVO> page = dishMapper.pageQuery(dishPageQueryDTO);
+    return new PageResult(page.getTotal(), page.getResult());
+}
 ```
 
+### 2.6、Mapper层
 
-
-#### 3.2.6 Mapper层
-
-**在 DishMapper 接口中声明 pageQuery 方法：**
+**在 DishMapper 接口中声明 pageQuery 方法**：
 
 ```java
-	/**
-     * 菜品分页查询
-     *
-     * @param dishPageQueryDTO
-     * @return
-     */
-    Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
+/**
+ * 菜品分页查询
+ * @param dishPageQueryDTO
+ * @return
+ */
+Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
 ```
 
-**在 DishMapper.xml 中编写SQL：**
+**在 DishMapper.xml 中编写 SQL**：
 
 ```xml
 <select id="pageQuery" resultType="com.sky.vo.DishVO">
-        select d.* , c.name as categoryName from dish d left outer join category c on d.category_id = c.id
-        <where>
-            <if test="name != null">
-                and d.name like concat('%',#{name},'%')
-            </if>
-            <if test="categoryId != null">
-                and d.category_id = #{categoryId}
-            </if>
-            <if test="status != null">
-                and d.status = #{status}
-            </if>
-        </where>
-        order by d.create_time desc
+    select d.* , c.name as categoryName from dish d left outer join category c on d.category_id = c.id
+    <where>
+        <if test="name != null">
+            and d.name like concat('%',#{name},'%')
+        </if>
+        <if test="categoryId != null">
+            and d.category_id = #{categoryId}
+        </if>
+        <if test="status != null">
+            and d.status = #{status}
+        </if>
+    </where>
+    order by d.create_time desc
 </select>
 ```
 
+## 3、功能测试
 
+### 3.1、接口文档测试
 
-### 3.3 功能测试
+**启动服务**：访问 http://localhost:8080/doc.html，进入菜品分页查询接口
 
-#### 3.3.1 接口文档测试
+**注意**：使用 admin 用户登录重新获取 token，防止 token 失效。
 
-**启动服务：**访问http://localhost:8080/doc.html，进入菜品分页查询接口
+<img src="img/image26.png" alt="image26" style="zoom:50%;" />  
 
-**注意：**使用admin用户登录重新获取token，防止token失效。
+**点击发送**：
 
-<img src="assets/image-20221121210252403.png" alt="image-20221121210252403" style="zoom:50%;" />  
+<img src="img/image27.png" alt="image27" style="zoom: 67%;" /> 
 
-**点击发送：**
+### 3.2、前后端联调测试
 
-<img src="assets/image-20221121210333489.png" alt="image-20221121210333489" style="zoom: 67%;" /> 
-
-
-
-#### 3.3.2 前后端联调测试
-
-启动nginx,访问 http://localhost
+启动 nginx，访问 http://localhost
 
 **点击菜品管理**
 
-<img src="assets/image-20221121210500188.png" alt="image-20221121210500188" style="zoom:50%;" /> 
+<img src="img/image28.png" alt="image28" style="zoom:50%;" /> 
 
 数据成功查出。
-
-
 
 # 四、删除菜品
 
