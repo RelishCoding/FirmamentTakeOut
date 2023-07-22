@@ -517,75 +517,63 @@ category 表中数据
 
 # 二、新增菜品
 
-### 2.1 需求分析与设计
+## 1、需求分析与设计
 
-#### 2.1.1 产品原型
+### 1.1、产品原型
 
-后台系统中可以管理菜品信息，通过 **新增功能**来添加一个新的菜品，在添加菜品时需要选择当前菜品所属的菜品分类，并且需要上传菜品图片。
+后台系统中可以管理菜品信息，通过 **新增功能** 来添加一个新的菜品，在添加菜品时需要选择当前菜品所属的菜品分类，并且需要上传菜品图片。
 
-**新增菜品原型：**
+**新增菜品原型**：
 
-<img src="assets/image-20221121164131337.png" alt="image-20221121164131337" style="zoom: 50%;" /> 
+<img src="img/image9.png" alt="image9" style="zoom: 50%;" /> 
 
-当填写完表单信息, 点击"保存"按钮后, 会提交该表单的数据到服务端, 在服务端中需要接受数据, 然后将数据保存至数据库中。
+当填写完表单信息, 点击 "保存" 按钮后，会提交该表单的数据到服务端，在服务端中需要接受数据，然后将数据保存至数据库中。
 
-
-
-**业务规则：**
+**业务规则**：
 
 - 菜品名称必须是唯一的
 - 菜品必须属于某个分类下，不能单独存在
 - 新增菜品时可以根据情况选择菜品的口味
 - 每个菜品必须对应一张图片
 
+### 1.2、接口设计
 
+根据上述原型图先**粗粒度**设计接口，共包含 3 个接口。
 
-#### 2.1.2 接口设计
-
-根据上述原型图先**粗粒度**设计接口，共包含3个接口。
-
-**接口设计：**
+**接口设计**：
 
 - 根据类型查询分类（已完成）
 - 文件上传
 - 新增菜品
 
-
-
 接下来**细粒度**分析每个接口，明确每个接口的请求方式、请求路径、传入参数和返回值。
 
 **1. 根据类型查询分类**
 
-<img src="assets/image-20221121165033612.png" alt="image-20221121165033612" style="zoom:50%;" /> <img src="assets/image-20221121165043619.png" alt="image-20221121165043619" style="zoom:50%;" />
+<img src="img/image10.png" alt="image10" style="zoom:50%;" /> <img src="img/image11.png" alt="image11" style="zoom:50%;" />
 
 **2. 文件上传**
 
-<img src="assets/image-20221121165201319.png" alt="image-20221121165201319" style="zoom:50%;" /><img src="assets/image-20221121165215634.png" alt="image-20221121165215634" style="zoom:50%;" />
-
-
+<img src="img/image12.png" alt="image12" style="zoom:50%;" /><img src="img/image13.png" alt="image13" style="zoom:50%;" />
 
 **3. 新增菜品**
 
-<img src="assets/image-20221121165254961.png" alt="image-20221121165254961" style="zoom: 50%;" /><img src="assets/image-20221121165308394.png" alt="image-20221121165308394" style="zoom: 50%;" /><img src="assets/image-20221121165322687.png" alt="image-20221121165322687" style="zoom: 50%;" />
+<img src="img/image14.png" alt="image14" style="zoom: 50%;" /><img src="img/image15.png" alt="image15" style="zoom: 50%;" /><img src="img/image16.png" alt="image16" style="zoom: 50%;" />
 
-
-
-#### 2.1.3 表设计
+### 1.3、表设计
 
 通过原型图进行分析：
 
-<img src="assets/image-20221121165917874.png" alt="image-20221121165917874" style="zoom:50%;" /> 
+<img src="img/image17.png" alt="image17" style="zoom:50%;" /> 
 
-新增菜品，其实就是将新增页面录入的菜品信息插入到dish表，如果添加了口味做法，还需要向dish_flavor表插入数据。所以在新增菜品时，涉及到两个表：
+新增菜品，其实就是将新增页面录入的菜品信息插入到 dish 表，如果添加了口味做法，还需要向 dish_flavor 表插入数据。所以在新增菜品时，涉及到两个表：
 
 | 表名        | 说明       |
 | ----------- | ---------- |
 | dish        | 菜品表     |
 | dish_flavor | 菜品口味表 |
 
-
-
-**1). 菜品表:dish**
+**1). 菜品表：dish**
 
 | **字段名**  | **数据类型**  | **说明**     | **备注**    |
 | ----------- | ------------- | ------------ | ----------- |
@@ -601,7 +589,7 @@ category 表中数据
 | create_user | bigint        | 创建人id     |             |
 | update_user | bigint        | 最后修改人id |             |
 
-**2). 菜品口味表:dish_flavor**
+**2). 菜品口味表：dish_flavor**
 
 | **字段名** | **数据类型** | **说明** | **备注** |
 | ---------- | ------------ | -------- | -------- |
@@ -610,11 +598,9 @@ category 表中数据
 | name       | varchar(32)  | 口味名称 |          |
 | value      | varchar(255) | 口味值   |          |
 
+## 2、代码开发
 
-
-### 2.2 代码开发
-
-#### 2.2.1 文件上传实现
+### 2.1、文件上传实现
 
 因为在新增菜品时，需要上传菜品对应的图片(文件)，包括后绪其它功能也会使用到文件上传，故要实现通用的文件上传接口。
 
@@ -622,35 +608,37 @@ category 表中数据
 
 实现文件上传服务，需要有存储的支持，那么我们的解决方案将以下几种：
 
-1. 直接将图片保存到服务的硬盘（springmvc中的文件上传）
-   1. 优点：开发便捷，成本低
-   2. 缺点：扩容困难
+1. 直接将图片保存到服务的硬盘（springmvc 中的文件上传）
+   
+   * 优点：开发便捷，成本低
+   * 缺点：扩容困难
 2. 使用分布式文件系统进行存储
-   1. 优点：容易实现扩容
-   2. 缺点：开发复杂度稍大（有成熟的产品可以使用，比如：FastDFS,MinIO）
-3. 使用第三方的存储服务（例如OSS）
-   1. 优点：开发简单，拥有强大功能，免维护
-   2. 缺点：付费
+   * 优点：容易实现扩容
+   * 缺点：开发复杂度稍大（有成熟的产品可以使用，比如：FastDFS，MinIO）
+3. 使用第三方的存储服务（例如 OSS）
+   * 优点：开发简单，拥有强大功能，免维护
+   
+   * 缺点：付费
 
-在本项目选用阿里云的OSS服务进行文件存储。（前面课程已学习过阿里云OSS,不再赘述）
+在本项目选用阿里云的 OSS 服务进行文件存储。
 
-<img src="assets/image-20221121174942235.png" alt="image-20221121174942235" style="zoom:67%;" /> 
+<img src="img/image18.png" alt="image18" style="zoom:67%;" /> 
 
 **实现步骤：**
 
-**1). 定义OSS相关配置**
+**1). 定义 OSS 相关配置**
 
-在sky-server模块
+在 sky-server 模块
 
 application-dev.yml
 
 ```yaml
 sky:
   alioss:
-    endpoint: oss-cn-hangzhou.aliyuncs.com
-    access-key-id: LTAI5tPeFLzsPPT8gG3LPW64
-    access-key-secret: U6k1brOZ8gaOIXv3nXbulGTUzy6Pd7
-    bucket-name: sky-take-out
+    endpoint: oss-cn-chengdu.aliyuncs.com
+    access-key-id: LTAI5tMuiT6ULZd1jLZsACC3
+    access-key-secret: bKK4IdzzsAVvczXF9eigjYlKI5PJeI
+    bucket-name: firmament-takeout
 ```
 
 application.yml
@@ -665,14 +653,11 @@ sky:
     access-key-id: ${sky.alioss.access-key-id}
     access-key-secret: ${sky.alioss.access-key-secret}
     bucket-name: ${sky.alioss.bucket-name}
-
 ```
 
+**2). 读取 OSS 配置**
 
-
-**2). 读取OSS配置**
-
-在sky-common模块中，已定义
+在 sky-common 模块中，已定义
 
 ```java
 package com.sky.properties;
@@ -694,11 +679,9 @@ public class AliOssProperties {
 }
 ```
 
+**3). 生成 OSS 工具类对象**
 
-
-**3). 生成OSS工具类对象**
-
-在sky-server模块
+在 sky-server 模块
 
 ```java
 package com.sky.config;
@@ -716,7 +699,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Slf4j
 public class OssConfiguration {
-
     @Bean
     @ConditionalOnMissingBean
     public AliOssUtil aliOssUtil(AliOssProperties aliOssProperties){
@@ -729,7 +711,7 @@ public class OssConfiguration {
 }
 ```
 
-其中，AliOssUtil.java已在sky-common模块中定义
+其中，AliOssUtil.java 已在 sky-common 模块中定义
 
 ```java
 package com.sky.utils;
@@ -802,11 +784,9 @@ public class AliOssUtil {
 }
 ```
 
-
-
 **4). 定义文件上传接口**
 
-在sky-server模块中定义接口
+在 sky-server 模块中定义接口
 
 ```java
 package com.sky.controller.admin;
@@ -833,7 +813,6 @@ import java.util.UUID;
 @Api(tags = "通用接口")
 @Slf4j
 public class CommonController {
-
     @Autowired
     private AliOssUtil aliOssUtil;
 
@@ -867,13 +846,11 @@ public class CommonController {
 }
 ```
 
+### 2.2、新增菜品实现
 
+**1). 设计 DTO 类**
 
-#### 2.2.2 新增菜品实现
-
-**1). 设计DTO类**
-
-在sky-pojo模块中
+在 sky-pojo 模块中
 
 ```java
 package com.sky.dto;
@@ -906,11 +883,9 @@ public class DishDTO implements Serializable {
 }
 ```
 
+**2). Controller 层**
 
-
-**2). Controller层**
-
-进入到sky-server模块
+进入到 sky-server 模块
 
 ```java
 package com.sky.controller.admin;
@@ -938,13 +913,11 @@ import java.util.Set;
 @Api(tags = "菜品相关接口")
 @Slf4j
 public class DishController {
-
     @Autowired
     private DishService dishService;
 
     /**
      * 新增菜品
-     *
      * @param dishDTO
      * @return
      */
@@ -952,15 +925,13 @@ public class DishController {
     @ApiOperation("新增菜品")
     public Result save(@RequestBody DishDTO dishDTO) {
         log.info("新增菜品：{}", dishDTO);
-        dishService.saveWithFlavor(dishDTO);//后绪步骤开发
+        dishService.saveWithFlavor(dishDTO);
         return Result.success();
     }
 }
 ```
 
-
-
-**3). Service层接口**
+**3). Service 层接口**
 
 ```java
 package com.sky.service;
@@ -969,29 +940,37 @@ import com.sky.dto.DishDTO;
 import com.sky.entity.Dish;
 
 public interface DishService {
-
     /**
      * 新增菜品和对应的口味
      *
      * @param dishDTO
      */
-    public void saveWithFlavor(DishDTO dishDTO);
-
+    void saveWithFlavor(DishDTO dishDTO);
 }
 ```
 
-
-
-**4). Service层实现类**
+**4). Service 层实现类**
 
 ```java
 package com.sky.service.impl;
 
+import com.sky.dto.DishDTO;
+import com.sky.entity.Dish;
+import com.sky.entity.DishFlavor;
+import com.sky.mapper.DishFlavorMapper;
+import com.sky.mapper.DishMapper;
+import com.sky.service.DishService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Slf4j
 public class DishServiceImpl implements DishService {
-
     @Autowired
     private DishMapper dishMapper;
     @Autowired
@@ -999,17 +978,16 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 新增菜品和对应的口味
-     *
      * @param dishDTO
      */
+    @Override
     @Transactional
     public void saveWithFlavor(DishDTO dishDTO) {
-
         Dish dish = new Dish();
         BeanUtils.copyProperties(dishDTO, dish);
 
         //向菜品表插入1条数据
-        dishMapper.insert(dish);//后绪步骤实现
+        dishMapper.insert(dish);
 
         //获取insert语句生成的主键值
         Long dishId = dish.getId();
@@ -1020,43 +998,38 @@ public class DishServiceImpl implements DishService {
                 dishFlavor.setDishId(dishId);
             });
             //向口味表插入n条数据
-            dishFlavorMapper.insertBatch(flavors);//后绪步骤实现
+            dishFlavorMapper.insertBatch(flavors);
         }
     }
-
 }
 ```
 
+**5). Mapper 层**
 
-
-**5). Mapper层**
-
-DishMapper.java中添加
+DishMapper.java 中添加
 
 ```java
-	/**
-     * 插入菜品数据
-     *
-     * @param dish
-     */
-    @AutoFill(value = OperationType.INSERT)
-    void insert(Dish dish);
+/**
+ * 插入菜品数据
+ * @param dish
+ */
+@AutoFill(value = OperationType.INSERT)
+void insert(Dish dish);
 ```
 
-在/resources/mapper中创建DishMapper.xml
+在 /resources/mapper 中创建 DishMapper.xml
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.sky.mapper.DishMapper">
 
+<mapper namespace="com.sky.mapper.DishMapper">
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into dish (name, category_id, price, image, description, create_time, update_time, create_user,update_user, status)
         values (#{name}, #{categoryId}, #{price}, #{image}, #{description}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser}, #{status})
     </insert>
 </mapper>
-
 ```
 
 DishFlavorMapper.java
@@ -1065,6 +1038,7 @@ DishFlavorMapper.java
 package com.sky.mapper;
 
 import com.sky.entity.DishFlavor;
+import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 @Mapper
@@ -1074,16 +1048,16 @@ public interface DishFlavorMapper {
      * @param flavors
      */
     void insertBatch(List<DishFlavor> flavors);
-
 }
 ```
 
-在/resources/mapper中创建DishFlavorMapper.xml
+在 /resources/mapper 中创建 DishFlavorMapper.xml
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
 <mapper namespace="com.sky.mapper.DishFlavorMapper">
     <insert id="insertBatch">
         insert into dish_flavor (dish_id, name, value) VALUES
@@ -1094,35 +1068,29 @@ public interface DishFlavorMapper {
 </mapper>
 ```
 
+## 3、功能测试
 
+进入到菜品管理 —> 新建菜品
 
-### 2.3 功能测试
-
-进入到菜品管理--->新建菜品
-
-<img src="assets/image-20221121195440804.png" alt="image-20221121195440804" style="zoom:50%;" /> 
+<img src="img/image19.png" alt="image19" style="zoom:50%;" /> 
 
 由于没有实现菜品查询功能，所以保存后，暂且在表中查看添加的数据。
 
-dish表：
+dish 表：
 
-<img src="assets/image-20221121195737692.png" alt="image-20221121195737692" style="zoom:50%;" /> 
+<img src="img/image20.png" alt="image20" style="zoom:50%;" /> 
 
-dish_flavor表：
+dish_flavor 表：
 
-<img src="assets/image-20221121195902555.png" alt="image-20221121195902555" style="zoom:50%;" /> 
+<img src="img/image21.png" alt="image21" style="zoom:50%;" /> 
 
 测试成功。
 
+## 4、代码提交
 
-
-### 2.4代码提交
-
-<img src="assets/image-20221121200332933.png" alt="image-20221121200332933" style="zoom:50%;" />  
+<img src="img/image22.png" alt="image22" style="zoom:50%;" />  
 
 后续步骤和上述功能代码提交一致，不再赘述。
-
-
 
 # 三、菜品分页查询
 
