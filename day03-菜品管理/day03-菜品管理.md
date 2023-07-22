@@ -636,9 +636,9 @@ application-dev.yml
 sky:
   alioss:
     endpoint: oss-cn-chengdu.aliyuncs.com
-    access-key-id: LTAI5tMuiT6ULZd1jLZsACC3
-    access-key-secret: bKK4IdzzsAVvczXF9eigjYlKI5PJeI
-    bucket-name: firmament-takeout
+    access-key-id: LTAI5tPeFLzsPPT8gG3LPW64
+    access-key-secret: U6k1brOZ8gaOIXv3nXbulGTUzy6Pd7
+    bucket-name: sky-itcast
 ```
 
 application.yml
