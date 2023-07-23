@@ -1,4 +1,4 @@
-
+ 
 
 # 今日内容
 
@@ -1513,228 +1513,201 @@ void deleteByDishId(Long dishId);
 
 ## 4、代码提交
 
-<img src="img/image37.png" alt="image" style="zoom:50%;" /> 
+<img src="img/image37.png" alt="image37" style="zoom:50%;" /> 
 
 后续步骤和上述功能代码提交一致，不再赘述。
 
-# 5、修改菜品
+# 五、修改菜品
 
-### 5.1 需求分析和设计
+## 1、需求分析和设计
 
-#### 5.1.1 产品原型
+### 1.1、产品原型
 
 在菜品管理列表页面点击修改按钮，跳转到修改菜品页面，在修改页面回显菜品相关信息并进行修改，最后点击保存按钮完成修改操作。
 
-**修改菜品原型：**
+**修改菜品原型**：
 
-<img src="assets/image-20221122130837173.png" alt="image-20221122130837173" style="zoom:50%;" /> 
+<img src="img/image38.png" alt="image38" style="zoom:50%;" /> 
 
+### 1.2、接口设计
 
+通过对上述原型图进行分析，该页面共涉及 4 个接口。
 
-#### 5.1.2 接口设计
+**接口**：
 
-通过对上述原型图进行分析，该页面共涉及4个接口。
-
-**接口：**
-
-- 根据id查询菜品
-- 根据类型查询分类(已实现)
-- 文件上传(已实现)
+- 根据 id 查询菜品
+- 根据类型查询分类（已实现）
+- 文件上传（已实现）
 - 修改菜品
 
-我们只需要实现**根据id查询菜品**和**修改菜品**两个接口，接下来，我们来重点分析这两个接口。
+我们只需要实现**根据 id 查询菜品**和**修改菜品**两个接口，接下来，我们来重点分析这两个接口。
 
-**1). 根据id查询菜品**
+**1). 根据 id 查询菜品**
 
-<img src="assets/image-20221122131733147.png" alt="image-20221122131733147" style="zoom:50%;" /><img src="assets/image-20221122131743509.png" alt="image-20221122131743509" style="zoom:50%;" />
+<img src="img/image39.png" alt="image39" style="zoom:50%;" /><img src="img/image40.png" alt="image40" style="zoom:50%;" />
 
 **2). 修改菜品**
 
-<img src="assets/image-20221122131837393.png" alt="image-20221122131837393" style="zoom:50%;" /> <img src="assets/image-20221122131847583.png" alt="image-20221122131847583" style="zoom:50%;" />
+<img src="img/image41.png" alt="image41" style="zoom:50%;" /> <img src="img/image42.png" alt="image42" style="zoom:50%;" />
 
+<img src="img/image43.png" alt="image43" style="zoom:50%;" /> 
 
+**注：因为是修改功能，请求方式可设置为 PUT**。
 
-<img src="assets/image-20221122131914533.png" alt="image-20221122131914533" style="zoom:50%;" /> 
+## 2、代码开发
 
-**注:因为是修改功能，请求方式可设置为PUT。**
+### 2.1、根据id查询菜品实现
 
+**1). Controller 层**
 
-
-### 5.2 代码开发
-
-#### 5.2.1 根据id查询菜品实现
-
-**1). Controller层**
-
-**根据id查询菜品的接口定义在DishController中创建方法：**
+**根据 id 查询菜品的接口定义在 DishController 中创建方法**：
 
 ```java
-    /**
-     * 根据id查询菜品
-     *
-     * @param id
-     * @return
-     */
-    @GetMapping("/{id}")
-    @ApiOperation("根据id查询菜品")
-    public Result<DishVO> getById(@PathVariable Long id) {
-        log.info("根据id查询菜品：{}", id);
-        DishVO dishVO = dishService.getByIdWithFlavor(id);//后绪步骤实现
-        return Result.success(dishVO);
+/**
+ * 根据id查询菜品
+ * @param id
+ * @return
+ */
+@GetMapping("/{id}")
+@ApiOperation("根据id查询菜品")
+public Result<DishVO> getById(@PathVariable Long id) {
+    log.info("根据id查询菜品：{}", id);
+    DishVO dishVO = dishService.getByIdWithFlavor(id);//后续步骤实现
+    return Result.success(dishVO);
+}
+```
+
+**2). Service 层接口**
+
+**在 DishService 接口中声明 getByIdWithFlavor 方法**：
+
+```java
+/**
+ * 根据id查询菜品和对应的口味数据
+ * @param id
+ * @return
+ */
+DishVO getByIdWithFlavor(Long id);
+```
+
+**3). Service 层实现类**
+
+**在 DishServiceImpl 中实现 getByIdWithFlavor 方法**：
+
+```java
+/**
+ * 根据id查询菜品和对应的口味数据
+ * @param id
+ * @return
+ */
+public DishVO getByIdWithFlavor(Long id) {
+    //根据id查询菜品数据
+    Dish dish = dishMapper.getById(id);
+
+    //根据菜品id查询口味数据
+    List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(id);//后续步骤实现
+
+    //将查询到的数据封装到VO
+    DishVO dishVO = new DishVO();
+    BeanUtils.copyProperties(dish, dishVO);
+    dishVO.setFlavors(dishFlavors);
+
+    return dishVO;
+}
+```
+
+**4). Mapper 层**
+
+**在 DishFlavorMapper 中声明 getByDishId 方法，并配置SQL**：
+
+```java
+/**
+ * 根据菜品id查询对应的口味数据
+ * @param dishId
+ * @return
+ */
+@Select("select * from dish_flavor where dish_id = #{dishId}")
+List<DishFlavor> getByDishId(Long dishId);
+```
+
+### 2.2、修改菜品实现
+
+**1). Controller 层**
+
+**根据修改菜品的接口定义在 DishController 中创建方法**：
+
+```java
+/**
+ * 修改菜品
+ * @param dishDTO
+ * @return
+ */
+@PutMapping
+@ApiOperation("修改菜品")
+public Result update(@RequestBody DishDTO dishDTO) {
+    log.info("修改菜品：{}", dishDTO);
+    dishService.updateWithFlavor(dishDTO);
+    return Result.success();
+}
+```
+
+**2). Service 层接口**
+
+**在 DishService 接口中声明 updateWithFlavor 方法**：
+
+```java
+/**
+ * 根据id修改菜品基本信息和对应的口味信息
+ * @param dishDTO
+ */
+void updateWithFlavor(DishDTO dishDTO);
+```
+
+**3). Service 层实现类**
+
+**在 DishServiceImpl 中实现 updateWithFlavor 方法**：
+
+```java
+/**
+ * 根据id修改菜品基本信息和对应的口味信息
+ * @param dishDTO
+ */
+public void updateWithFlavor(DishDTO dishDTO) {
+    Dish dish = new Dish();
+    BeanUtils.copyProperties(dishDTO, dish);
+
+    //修改菜品表基本信息
+    dishMapper.update(dish);
+
+    //删除原有的口味数据
+    dishFlavorMapper.deleteByDishId(dishDTO.getId());
+
+    //重新插入口味数据
+    List<DishFlavor> flavors = dishDTO.getFlavors();
+    if (flavors != null && flavors.size() > 0) {
+        flavors.forEach(dishFlavor -> {
+            dishFlavor.setDishId(dishDTO.getId());
+        });
+        //向口味表插入n条数据
+        dishFlavorMapper.insertBatch(flavors);
     }
+}
 ```
 
+**4). Mapper 层**
 
-
-**2). Service层接口**
-
-**在DishService接口中声明getByIdWithFlavor方法：**
+**在 DishMapper 中，声明 update 方法**：
 
 ```java
-	/**
-     * 根据id查询菜品和对应的口味数据
-     *
-     * @param id
-     * @return
-     */
-    DishVO getByIdWithFlavor(Long id);
+/**
+ * 根据id动态修改菜品数据
+ * @param dish
+ */
+@AutoFill(value = OperationType.UPDATE)
+void update(Dish dish);
 ```
 
-
-
-**3). Service层实现类**
-
-**在DishServiceImpl中实现getByIdWithFlavor方法：**
-
-```java
-	/**
-     * 根据id查询菜品和对应的口味数据
-     *
-     * @param id
-     * @return
-     */
-    public DishVO getByIdWithFlavor(Long id) {
-        //根据id查询菜品数据
-        Dish dish = dishMapper.getById(id);
-
-        //根据菜品id查询口味数据
-        List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(id);//后绪步骤实现
-
-        //将查询到的数据封装到VO
-        DishVO dishVO = new DishVO();
-        BeanUtils.copyProperties(dish, dishVO);
-        dishVO.setFlavors(dishFlavors);
-
-        return dishVO;
-    }
-```
-
-
-
-**4). Mapper层**
-
-**在DishFlavorMapper中声明getByDishId方法，并配置SQL：**
-
-```java
-    /**
-     * 根据菜品id查询对应的口味数据
-     * @param dishId
-     * @return
-     */
-    @Select("select * from dish_flavor where dish_id = #{dishId}")
-    List<DishFlavor> getByDishId(Long dishId);
-```
-
-
-
-#### 5.2.1 修改菜品实现
-
-**1). Controller层**
-
-**根据修改菜品的接口定义在DishController中创建方法：**
-
-```java
-	/**
-     * 修改菜品
-     *
-     * @param dishDTO
-     * @return
-     */
-    @PutMapping
-    @ApiOperation("修改菜品")
-    public Result update(@RequestBody DishDTO dishDTO) {
-        log.info("修改菜品：{}", dishDTO);
-        dishService.updateWithFlavor(dishDTO);
-        return Result.success();
-    }
-```
-
-
-
-**2). Service层接口**
-
-**在DishService接口中声明updateWithFlavor方法：**
-
-```java
-	/**
-     * 根据id修改菜品基本信息和对应的口味信息
-     *
-     * @param dishDTO
-     */
-    void updateWithFlavor(DishDTO dishDTO);
-```
-
-
-
-**3). Service层实现类**
-
-**在DishServiceImpl中实现updateWithFlavor方法：**
-
-```java
-	/**
-     * 根据id修改菜品基本信息和对应的口味信息
-     *
-     * @param dishDTO
-     */
-    public void updateWithFlavor(DishDTO dishDTO) {
-        Dish dish = new Dish();
-        BeanUtils.copyProperties(dishDTO, dish);
-
-        //修改菜品表基本信息
-        dishMapper.update(dish);
-
-        //删除原有的口味数据
-        dishFlavorMapper.deleteByDishId(dishDTO.getId());
-
-        //重新插入口味数据
-        List<DishFlavor> flavors = dishDTO.getFlavors();
-        if (flavors != null && flavors.size() > 0) {
-            flavors.forEach(dishFlavor -> {
-                dishFlavor.setDishId(dishDTO.getId());
-            });
-            //向口味表插入n条数据
-            dishFlavorMapper.insertBatch(flavors);
-        }
-    }
-```
-
-
-
-**4). Mapper层**
-
-**在DishMapper中，声明update方法：**
-
-```java
-	/**
-     * 根据id动态修改菜品数据
-     *
-     * @param dish
-     */
-    @AutoFill(value = OperationType.UPDATE)
-    void update(Dish dish);
-```
-
-**并在DishMapper.xml文件中编写SQL:**
+**并在 DishMapper.xml 文件中编写 SQL**：
 
 ```xml
 <update id="update">
@@ -1753,31 +1726,27 @@ void deleteByDishId(Long dishId);
 </update>
 ```
 
+## 3、功能测试
 
-
-### 5.3 功能测试
-
-本次测试直接通过**前后端联调测试** ，可使用Debug方式启动项目，观察运行中步骤。
+本次测试直接通过**前后端联调测试** ，可使用 Debug 方式启动项目，观察运行中步骤。
 
 进入菜品列表查询页面，对第一个菜品的价格进行修改
 
-<img src="assets/image-20221122141233080.png" alt="image-20221122141233080" style="zoom:50%;" /> 
+<img src="img/image44.png" alt="image44" style="zoom:50%;" /> 
 
 点击修改，回显成功
 
-<img src="assets/image-20221122141348677.png" alt="image-20221122141348677" style="zoom:50%;" /> 
+<img src="img/image45.png" alt="image45" style="zoom:50%;" /> 
 
 菜品价格修改后，点击保存
 
-<img src="assets/image-20221122141456498.png" alt="image-20221122141456498" style="zoom:50%;" /> 
+<img src="img/image46.png" alt="image46" style="zoom:50%;" /> 
 
 修改成功
 
+## 4、代码提交
 
-
-### 5.4 代码提交
-
-<img src="assets/image-20221122141554380.png" alt="image-20221122141554380" style="zoom:50%;" /> 
+<img src="img/image47.png" alt="image47" style="zoom:50%;" /> 
 
 后续步骤和上述功能代码提交一致，不再赘述。
 
