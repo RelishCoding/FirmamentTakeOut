@@ -160,7 +160,6 @@ List<Dish> list(Dish dish);
 @Api(tags = "套餐相关接口")
 @Slf4j
 public class SetmealController {
-
     @Autowired
     private SetmealService setmealService;
 
@@ -248,18 +247,12 @@ void insert(Setmeal setmeal);
 **5）SetmealMapper.xml**
 
 ~~~xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-
-<mapper namespace="com.sky.mapper.SetmealMapper">
-    <insert id="insert"  parameterType="Setmeal" useGeneratedKeys="true" keyProperty="id">
-        insert into setmeal
-        (category_id,name,price,status,description,image,create_time,update_time,create_user,update_user)
-        values
-        (#{categoryId},#{name},#{price},#{status},#{description},#{image},#{createTime},#{updateTime},#{createUser}, #{updateUser})
-    </insert>
-</mapper>
+<insert id="insert"  parameterType="Setmeal" useGeneratedKeys="true" keyProperty="id">
+    insert into setmeal
+    (category_id,name,price,status,description,image,create_time,update_time,create_user,update_user)
+    values
+    (#{categoryId},#{name},#{price},#{status},#{description},#{image},#{createTime},#{updateTime},#{createUser}, #{updateUser})
+</insert>
 ~~~
 
 **6）SetmealDishMapper**
@@ -311,59 +304,60 @@ void insertBatch(List<SetmealDish> setmealDishes);
 
 # 二、套餐分页查询
 
-### 2.1 需求分析和设计
+## 1、需求分析和设计
 
 产品原型：
 
-![image-20221018152429246](assets/image-20221018152429246.png)
+![image9](img/image9.png)
 
 业务规则：
 
 - 根据页码进行分页展示
-- 每页展示10条数据
+- 每页展示 10 条数据
 - 可以根据需要，按照套餐名称、分类、售卖状态进行查询
 
 接口设计：
 
-![image-20221018152731141](assets/image-20221018152731141.png)
+![image10](img/image10.png)
 
-### 2.2 代码实现
+## 2、代码实现
 
-#### 2.2.1 SetmealController
+**1）SetmealController**
 
 ~~~java
 /**
-     * 分页查询
-     * @param setmealPageQueryDTO
-     * @return
-*/
+ * 分页查询
+ * @param setmealPageQueryDTO
+ * @return
+ */
 @GetMapping("/page")
 @ApiOperation("分页查询")
 public Result<PageResult> page(SetmealPageQueryDTO setmealPageQueryDTO) {
+    log.info("分页查询：{}",setmealPageQueryDTO);
     PageResult pageResult = setmealService.pageQuery(setmealPageQueryDTO);
     return Result.success(pageResult);
 }
 ~~~
 
-#### 2.2.2 SetmealService
+**2）SetmealService**
 
 ~~~java
 /**
-     * 分页查询
-     * @param setmealPageQueryDTO
-     * @return
-*/
+ * 分页查询
+ * @param setmealPageQueryDTO
+ * @return
+ */
 PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 ~~~
 
-#### 2.2.3 SetmealServiceImpl
+**3）SetmealServiceImpl**
 
 ~~~java
 /**
-     * 分页查询
-     * @param setmealPageQueryDTO
-     * @return
-*/
+ * 分页查询
+ * @param setmealPageQueryDTO
+ * @return
+ */
 public PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO) {
     int pageNum = setmealPageQueryDTO.getPage();
     int pageSize = setmealPageQueryDTO.getPageSize();
@@ -374,29 +368,24 @@ public PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO) {
 }
 ~~~
 
-#### 2.2.4 SetmealMapper
+**4）SetmealMapper**
 
 ~~~java
 /**
-     * 分页查询
-     * @param setmealPageQueryDTO
-     * @return
-*/
+ * 分页查询
+ * @param setmealPageQueryDTO
+ * @return
+ */
 Page<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 ~~~
 
-#### 2.2.5 SetmealMapper.xml
+**5）SetmealMapper.xml**
 
 ~~~xml
 <select id="pageQuery" resultType="com.sky.vo.SetmealVO">
-    select
-    	s.*,c.name categoryName
-    from
-    	setmeal s
-    left join
-    	category c
-    on
-    	s.category_id = c.id
+    select s.*,c.name categoryName
+    from setmeal s left join category c
+    on s.category_id = c.id
     <where>
         <if test="name != null">
             and s.name like concat('%',#{name},'%')
@@ -412,17 +401,23 @@ Page<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 </select>
 ~~~
 
-### 2.3 功能测试
+## 3、功能测试
 
-略
+接口文档测试：
+
+![image11](img//image11.png)
+
+前后端联调测试：
+
+![image12](img/image12.png)
 
 # 三、删除套餐
 
-### 3.1 需求分析和设计
+## 1、需求分析和设计
 
 产品原型：
 
-![image-20221018153756531](assets/image-20221018153756531.png)
+![image13](img/image13.png)
 
 业务规则：
 
@@ -431,43 +426,44 @@ Page<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 
 接口设计：
 
-![image-20221018154541067](assets/image-20221018154541067.png)
+![image14](img/image14.png)
 
-### 3.2 代码实现
+## 2、代码实现
 
-#### 3.2.1 SetmealController
+**1）SetmealController**
 
 ~~~java
 /**
-     * 批量删除套餐
-     * @param ids
-     * @return
-*/
+ * 批量删除套餐
+ * @param ids
+ * @return
+ */
 @DeleteMapping
 @ApiOperation("批量删除套餐")
 public Result delete(@RequestParam List<Long> ids){
+    log.info("批量删除套餐：{}",ids);
     setmealService.deleteBatch(ids);
     return Result.success();
 }
 ~~~
 
-#### 3.2.2 SetmealService
+**2）SetmealService**
 
 ~~~java
 /**
-     * 批量删除套餐
-     * @param ids
-*/
+ * 批量删除套餐
+ * @param ids
+ */
 void deleteBatch(List<Long> ids);
 ~~~
 
-#### 3.2.3 SetmealServiceImpl
+**3）SetmealServiceImpl**
 
 ~~~java
 /**
-     * 批量删除套餐
-     * @param ids
-*/
+ * 批量删除套餐
+ * @param ids
+ */
 @Transactional
 public void deleteBatch(List<Long> ids) {
     ids.forEach(id -> {
@@ -487,47 +483,53 @@ public void deleteBatch(List<Long> ids) {
 }
 ~~~
 
-#### 3.2.4 SetmealMapper
+**4）SetmealMapper**
 
 ~~~java
 /**
-     * 根据id查询套餐
-     * @param id
-     * @return
-*/
+ * 根据id查询套餐
+ * @param id
+ * @return
+ */
 @Select("select * from setmeal where id = #{id}")
 Setmeal getById(Long id);
 
 /**
-     * 根据id删除套餐
-     * @param setmealId
-*/
+ * 根据id删除套餐
+ * @param setmealId
+ */
 @Delete("delete from setmeal where id = #{id}")
 void deleteById(Long setmealId);
 ~~~
 
-#### 3.2.5 SetmealDishMapper
+**5）SetmealDishMapper**
 
 ~~~java
 /**
-     * 根据套餐id删除套餐和菜品的关联关系
-     * @param setmealId
-*/
+ * 根据套餐id删除套餐和菜品的关联关系
+ * @param setmealId
+ */
 @Delete("delete from setmeal_dish where setmeal_id = #{setmealId}")
 void deleteBySetmealId(Long setmealId);
 ~~~
 
-### 3.3 功能测试
+## 3、功能测试
 
-略
+进入套餐管理，点击删除按钮
+
+![image15](img/image15.png)
+
+页面提示删除成功
+
+![image16](img/image16.png)
 
 # 四、修改套餐
 
-### 4.1 需求分析和设计
+## 1、需求分析和设计
 
 产品原型：
 
-![image-20221018160214225](assets/image-20221018160214225.png)
+![image-20221018160214225](/image-20221018160214225.png)
 
 接口设计（共涉及到5个接口）：
 
@@ -549,7 +551,7 @@ void deleteBySetmealId(Long setmealId);
 
 ![image-20221018161139861](assets/image-20221018161139861.png)
 
-### 4.2 代码实现
+## 2、代码实现
 
 #### 4.2.1 SetmealController
 
@@ -660,7 +662,7 @@ public void update(SetmealDTO setmealDTO) {
 
 
 
-### 4.3 功能测试
+## 3、功能测试
 
 略
 
