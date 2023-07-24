@@ -7,6 +7,7 @@
 - 菜品分页查询
 - 删除菜品
 - 修改菜品
+- 菜品起售、停售
 
 **功能实现**：菜品管理
 
@@ -143,7 +144,7 @@ public void update(CategoryDTO categoryDTO) {
 
 若要实现上述步骤，需掌握以下知识
 
-**技术点：**枚举、注解、AOP、反射
+**技术点**：枚举、注解、AOP、反射
 
 ## 3、代码开发
 
@@ -1324,7 +1325,7 @@ Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
 
 <img src="img/image30.png" alt="image30" style="zoom:50%;" /> <img src="img/image31.png" alt="image31" style="zoom:50%;" />
 
-**注意：**删除一个菜品和批量删除菜品共用一个接口，故 ids 可包含多个菜品 id，之间用逗号分隔。
+**注意**：删除一个菜品和批量删除菜品共用一个接口，故 ids 可包含多个菜品 id，之间用逗号分隔。
 
 ### 1.3、表设计
 
@@ -1749,4 +1750,150 @@ void update(Dish dish);
 <img src="img/image47.png" alt="image47" style="zoom:50%;" /> 
 
 后续步骤和上述功能代码提交一致，不再赘述。
+
+# 六、菜品起售停售
+
+## 1、需求分析
+
+根据产品原型进行需求分析，分析出业务规则
+
+菜品起售表示该菜品可以对外售卖，在用户端可以点餐，菜品停售表示此菜品下架，用户端无法点餐。
+
+业务规则为：如果执行停售操作，则包含此菜品的套餐也需要停售。
+
+## 2、接口设计
+
+设计 菜品起售停售 功能的接口
+
+![image48](img/image48.png)
+
+## 3、代码开发
+
+**1）DishController**
+
+~~~java
+/**
+ * 菜品起售停售
+ * @param status
+ * @param id
+ * @return
+ */
+@PostMapping("/status/{status}")
+@ApiOperation("菜品起售停售")
+public Result<String> startOrStop(@PathVariable Integer status, Long id){
+    log.info("菜品起售停售：{}",id);
+    dishService.startOrStop(status,id);
+    return Result.success();
+}
+~~~
+
+**2）DishService**
+
+~~~java
+/**
+ * 菜品起售停售
+ * @param status
+ * @param id
+ */
+void startOrStop(Integer status, Long id);
+~~~
+
+**3）DishServiceImpl**
+
+~~~java
+/**
+ * 菜品起售停售
+ * @param status
+ * @param id
+ */
+@Override
+@Transactional
+public void startOrStop(Integer status, Long id) {
+    Dish dish = Dish.builder()
+        .id(id)
+        .status(status)
+        .build();
+    dishMapper.update(dish);
+
+    if (status == StatusConstant.DISABLE) {
+        // 如果是停售操作，还需要将包含当前菜品的套餐也停售
+        List<Long> dishIds = new ArrayList<>();
+        dishIds.add(id);
+        // select setmeal_id from setmeal_dish where dish_id in (?,?,?)
+        List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishIds(dishIds);
+        if (setmealIds != null && setmealIds.size() > 0) {
+            for (Long setmealId : setmealIds) {
+                Setmeal setmeal = Setmeal.builder()
+                    .id(setmealId)
+                    .status(StatusConstant.DISABLE)
+                    .build();
+                setmealMapper.update(setmeal);
+            }
+        }
+    }
+}
+~~~
+
+**4）SetmealMapper**
+
+~~~java
+/**
+ * 根据id修改套餐
+ * @param setmeal
+ */
+@AutoFill(OperationType.UPDATE)
+void update(Setmeal setmeal);
+~~~
+
+**5）SetmealMapper.xml**
+
+~~~xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.sky.mapper.SetmealMapper">
+    <update id="update" parameterType="Setmeal">
+        update setmeal
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="image != null">
+                image = #{image},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>
+~~~
+
+## 4、功能测试
+
+通过 swagger 接口文档进行功能测试：
+
+![image49](img/image49.png)
+
+通过前后端联调进行功能测试：
+
+![image50](img/image50.png)
 
