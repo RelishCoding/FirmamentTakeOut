@@ -678,11 +678,11 @@ List<SetmealDish> getBySetmealId(Long setmealId);
 
 # 五、起售停售套餐
 
-### 5.1 需求分析和设计
+## 1、需求分析和设计
 
 产品原型：
 
-![image-20221018163720881](assets/image-20221018163720881.png)
+![image26](img/image26.png)
 
 业务规则：
 
@@ -692,46 +692,48 @@ List<SetmealDish> getBySetmealId(Long setmealId);
 
 接口设计：
 
-![image-20221018165055208](assets/image-20221018165055208.png)
+![image27](img/image27.png)
 
-### 5.2 代码实现
+## 2、代码实现
 
-#### 5.2.1 SetmealController
+**1）SetmealController**
 
 ~~~java
 /**
-     * 套餐起售停售
-     * @param status
-     * @param id
-     * @return
-*/
+ * 套餐起售停售
+ * @param status
+ * @param id
+ * @return
+ */
 @PostMapping("/status/{status}")
 @ApiOperation("套餐起售停售")
 public Result startOrStop(@PathVariable Integer status, Long id) {
+    log.info("套餐起售停售：{}",id);
     setmealService.startOrStop(status, id);
     return Result.success();
 }
 ~~~
 
-#### 5.2.2 SetmealService
+**2）SetmealService**
 
 ~~~java
 /**
-     * 套餐起售、停售
-     * @param status
-     * @param id
-*/
+ * 套餐起售、停售
+ * @param status
+ * @param id
+ */
 void startOrStop(Integer status, Long id);
 ~~~
 
-#### 5.2.3 SetmealServiceImpl
+**3）SetmealServiceImpl**
 
 ~~~java
 /**
-     * 套餐起售、停售
-     * @param status
-     * @param id
-*/
+ * 套餐起售、停售
+ * @param status
+ * @param id
+ */
+@Override
 public void startOrStop(Integer status, Long id) {
     //起售套餐时，判断套餐内是否有停售菜品，有停售菜品提示"套餐内包含未启售菜品，无法启售"
     if(status == StatusConstant.ENABLE){
@@ -754,18 +756,25 @@ public void startOrStop(Integer status, Long id) {
 }
 ~~~
 
-#### 5.2.4 DishMapper
+**4）DishMapper**
 
 ~~~java
 /**
-     * 根据套餐id查询菜品
-     * @param setmealId
-     * @return
-*/
+ * 根据套餐id查询菜品
+ * @param setmealId
+ * @return
+ */
 @Select("select a.* from dish a left join setmeal_dish b on a.id = b.dish_id where b.setmeal_id = #{setmealId}")
 List<Dish> getBySetmealId(Long setmealId);
 ~~~
 
-### 5.3 功能测试
+## 3、功能测试
 
-略
+先通过接口文档将测试套餐改为起售状态：
+
+![image28](img/image28.png)
+
+再通过前后端联调将测试套餐改回停售状态：
+
+![image29](img/image29.png)
+
