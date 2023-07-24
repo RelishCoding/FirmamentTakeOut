@@ -529,86 +529,88 @@ void deleteBySetmealId(Long setmealId);
 
 产品原型：
 
-![image-20221018160214225](/image-20221018160214225.png)
+![image17](img/image17.png)
 
-接口设计（共涉及到5个接口）：
+接口设计（共涉及到 5 个接口）：
 
-- 根据id查询套餐
+- 根据 id 查询套餐
 - 根据类型查询分类（已完成）
-- 根据分类id查询菜品（已完成）
+- 根据分类 id 查询菜品（已完成）
 - 图片上传（已完成）
 - 修改套餐
 
-![image-20221018160915177](assets/image-20221018160915177.png)
+**1.根据 id 查询套餐**
 
-![image-20221018160949864](assets/image-20221018160949864.png)
+![image18](img/image18.png)
 
+![image19](img/image19.png)
 
+**2.修改套餐**
 
-![image-20221018161046352](assets/image-20221018161046352.png)
+![image20](img/image20.png)
 
-![image-20221018161117780](assets/image-20221018161117780.png)
+![image21](img/image21.png)
 
-![image-20221018161139861](assets/image-20221018161139861.png)
+![image22](img/image22.png)
 
 ## 2、代码实现
 
-#### 4.2.1 SetmealController
+**1）SetmealController**
 
 ~~~java
 /**
-     * 根据id查询套餐，用于修改页面回显数据
-     *
-     * @param id
-     * @return
-*/
+ * 根据id查询套餐，用于修改页面回显数据
+ * @param id
+ * @return
+ */
 @GetMapping("/{id}")
 @ApiOperation("根据id查询套餐")
 public Result<SetmealVO> getById(@PathVariable Long id) {
+    log.info("根据id查询套餐：{}",id);
     SetmealVO setmealVO = setmealService.getByIdWithDish(id);
     return Result.success(setmealVO);
 }
 
 /**
-     * 修改套餐
-     *
-     * @param setmealDTO
-     * @return
-*/
+ * 修改套餐
+ * @param setmealDTO
+ * @return
+ */
 @PutMapping
 @ApiOperation("修改套餐")
 public Result update(@RequestBody SetmealDTO setmealDTO) {
+    log.info("修改套餐：{}",setmealDTO);
     setmealService.update(setmealDTO);
     return Result.success();
 }
 ~~~
 
-#### 4.2.2 SetmealService
+**2）SetmealService**
 
 ~~~java
 /**
-     * 根据id查询套餐和关联的菜品数据
-     * @param id
-     * @return
-*/
+ * 根据id查询套餐和关联的菜品数据
+ * @param id
+ * @return
+ */
 SetmealVO getByIdWithDish(Long id);
 
 /**
-     * 修改套餐
-     * @param setmealDTO
-*/
+ * 修改套餐
+ * @param setmealDTO
+ */
 void update(SetmealDTO setmealDTO);
 ~~~
 
-#### 4.2.3 SetmealServiceImpl
+**3）SetmealServiceImpl**
 
 ~~~java
 /**
-     * 根据id查询套餐和套餐菜品关系
-     *
-     * @param id
-     * @return
-*/
+ * 根据id查询套餐和套餐菜品关系
+ * @param id
+ * @return
+ */
+@Override
 public SetmealVO getByIdWithDish(Long id) {
     Setmeal setmeal = setmealMapper.getById(id);
     List<SetmealDish> setmealDishes = setmealDishMapper.getBySetmealId(id);
@@ -621,10 +623,10 @@ public SetmealVO getByIdWithDish(Long id) {
 }
 
 /**
-     * 修改套餐
-     *
-     * @param setmealDTO
-*/
+ * 修改套餐
+ * @param setmealDTO
+ */
+@Override
 @Transactional
 public void update(SetmealDTO setmealDTO) {
     Setmeal setmeal = new Setmeal();
@@ -648,23 +650,31 @@ public void update(SetmealDTO setmealDTO) {
 }
 ~~~
 
-#### 4.2.4 SetmealDishMapper
+**4）SetmealDishMapper**
 
 ~~~java
-	/**
-     * 根据套餐id查询套餐和菜品的关联关系
-     * @param setmealId
-     * @return
-     */
-    @Select("select * from setmeal_dish where setmeal_id = #{setmealId}")
-    List<SetmealDish> getBySetmealId(Long setmealId);
+/**
+ * 根据套餐id查询套餐和菜品的关联关系
+ * @param setmealId
+ * @return
+ */
+@Select("select * from setmeal_dish where setmeal_id = #{setmealId}")
+List<SetmealDish> getBySetmealId(Long setmealId);
 ~~~
-
-
 
 ## 3、功能测试
 
-略
+进入套餐管理，选择一个套餐点击修改：
+
+![image23](img/image23.png)
+
+将价格改为 150：
+
+![image24](img/image24.png)
+
+点击保存按钮后可看到已经修改成功：
+
+![image25](img/image25.png)
 
 # 五、起售停售套餐
 
