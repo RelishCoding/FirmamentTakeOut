@@ -715,82 +715,72 @@ public void testCommon(){
 
 # 五、店铺营业状态设置
 
-### 5.1 需求分析和设计
+## 1、需求分析和设计
 
-#### 5.1.1 产品原型
+### 1.1、产品原型
 
 进到苍穹外卖后台，显示餐厅的营业状态，营业状态分为**营业中**和**打烊中**，若当前餐厅处于营业状态，自动接收任何订单，客户可在小程序进行下单操作；若当前餐厅处于打烊状态，不接受任何订单，客户便无法在小程序进行下单操作。
 
-<img src="assets/image-20221130212134915.png" alt="image-20221130212134915" style="zoom:50%;" /> 
+<img src="img/image18.png" alt="image18" style="zoom:50%;" /> 
 
 点击**营业状态**按钮时，弹出更改营业状态
 
-<img src="assets/image-20221130213550300.png" alt="image-20221130213550300" style="zoom:50%;" /> 
+<img src="img/image19.png" alt="image19" style="zoom:50%;" /> 
 
 选择营业，设置餐厅为**营业中**状态
 
 选择打烊，设置餐厅为**打烊中**状态
 
-**状态说明：**
+**状态说明**：
 
-<img src="assets/image-20221130213947179.png" alt="image-20221130213947179" style="zoom: 67%;" /> 
+<img src="img/image20.png" alt="image20" style="zoom: 67%;" /> 
 
+### 1.2、接口设计
 
+根据上述原型图设计接口，共包含 3 个接口。
 
-#### 5.1.2 接口设计
-
-根据上述原型图设计接口，共包含3个接口。
-
-**接口设计：**
+**接口设计**：
 
 - 设置营业状态
 - 管理端查询营业状态
 - 用户端查询营业状态
 
-**注：**从技术层面分析，其实管理端和用户端查询营业状态时，可通过一个接口去实现即可。因为营业状态是一致的。但是，本项目约定：
+**注**：从技术层面分析，其实管理端和用户端查询营业状态时，可通过一个接口去实现即可。因为营业状态是一致的。但是，本项目约定：
 
-- **管理端**发出的请求，统一使用/admin作为前缀。
-- **用户端**发出的请求，统一使用/user作为前缀。
+- **管理端**发出的请求，统一使用 /admin 作为前缀。
+- **用户端**发出的请求，统一使用 /user 作为前缀。
 
 因为访问路径不一致，故分为两个接口实现。
 
 **1). 设置营业状态**
 
-<img src="assets/image-20221130215725802.png" alt="image-20221130215725802" style="zoom:50%;" /> 
-
-
+<img src="img/image21.png" alt="image21" style="zoom:50%;" /> 
 
 **2). 管理端营业状态**
 
-<img src="assets/image-20221130215814021.png" alt="image-20221130215814021" style="zoom:50%;" /> 
-
-
+<img src="img/image22.png" alt="image22" style="zoom:50%;" /> 
 
 **3). 用户端营业状态**
 
-<img src="assets/image-20221130215836785.png" alt="image-20221130215836785" style="zoom:50%;" /> 
+<img src="img/image23.png" alt="image23" style="zoom:50%;" /> 
 
-
-
-#### 5.1.3 营业状态存储方式
+### 1.3、营业状态存储方式
 
 虽然，可以通过一张表来存储营业状态数据，但整个表中只有一个字段，所以意义不大。
 
-营业状态数据存储方式：基于Redis的字符串来进行存储
+营业状态数据存储方式：基于 Redis 的字符串来进行存储
 
-<img src="assets/image-20221130220037713.png" alt="image-20221130220037713" style="zoom:50%;" /> 
+<img src="img/image24.png" alt="image24" style="zoom:50%;" /> 
 
-**约定：**1表示营业 0表示打烊
+**约定**：1 表示营业，0 表示打烊
 
+## 2、代码开发
 
+### 2.1、设置营业状态
 
-### 5.2 代码开发
+在 sky-server 模块中，创建 ShopController.java
 
-#### 5.2.1 设置营业状态
-
-在sky-server模块中，创建ShopController.java
-
-**根据接口定义创建ShopController的setStatus设置营业状态方法：**
+**根据接口定义创建 ShopController 的 setStatus 设置营业状态方法**：
 
 ```java
 package com.sky.controller.admin;
@@ -811,7 +801,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "店铺相关接口")
 @Slf4j
 public class ShopController {
-
     public static final String KEY = "SHOP_STATUS";
 
     @Autowired
@@ -832,33 +821,29 @@ public class ShopController {
 }
 ```
 
-
-
-#### 5.2.2 管理端查询营业状态
+### 2.2、管理端查询营业状态
 
 **根据接口定义创建ShopController的getStatus查询营业状态方法：**
 
 ```java
-	/**
-     * 获取店铺的营业状态
-     * @return
-     */
-    @GetMapping("/status")
-    @ApiOperation("获取店铺的营业状态")
-    public Result<Integer> getStatus(){
-        Integer status = (Integer) redisTemplate.opsForValue().get(KEY);
-        log.info("获取到店铺的营业状态为：{}",status == 1 ? "营业中" : "打烊中");
-        return Result.success(status);
-    }
+/**
+ * 获取店铺的营业状态
+ * @return
+ */
+@GetMapping("/status")
+@ApiOperation("获取店铺的营业状态")
+public Result<Integer> getStatus(){
+    Integer status = (Integer) redisTemplate.opsForValue().get(KEY);
+    log.info("获取到店铺的营业状态为：{}",status == 1 ? "营业中" : "打烊中");
+    return Result.success(status);
+}
 ```
 
+### 2.3、用户端查询营业状态
 
+创建 com.sky.controller.user 包，在该包下创建 ShopController.java
 
-#### 5.2.3 用户端查询营业状态
-
-创建com.sky.controller.user包，在该包下创建ShopController.java
-
-**根据接口定义创建ShopController的getStatus查询营业状态方法：**
+**根据接口定义创建 ShopController 的 getStatus 查询营业状态方法**：
 
 ```java
 package com.sky.controller.user;
@@ -876,7 +861,6 @@ import org.springframework.web.bind.annotation.*;
 @Api(tags = "店铺相关接口")
 @Slf4j
 public class ShopController {
-
     public static final String KEY = "SHOP_STATUS";
 
     @Autowired
@@ -896,139 +880,129 @@ public class ShopController {
 }
 ```
 
+## 3、功能测试
 
+### 3.1、接口文档测试
 
-### 5.3 功能测试
+**启动服务**：访问 http://localhost:8080/doc.html，打开店铺相关接口
 
-#### 5.3.1 接口文档测试
+**注意**：使用 admin 用户登录重新获取 token，防止 token 失效。
 
-**启动服务：**访问http://localhost:8080/doc.html，打开店铺相关接口
+**设置营业状态**：
 
-**注意：**使用admin用户登录重新获取token，防止token失效。
-
-**设置营业状态：**
-
-<img src="assets/image-20221201175251351.png" alt="image-20221201175251351" style="zoom:50%;" /> 
+<img src="img/image25.png" alt="image25" style="zoom:50%;" /> 
 
 点击发送
 
-<img src="assets/image-20221201175428279.png" alt="image-20221201175428279" style="zoom:50%;" /> 
+<img src="img/image26.png" alt="image26" style="zoom:50%;" /> 
 
-查看Idea控制台日志
+查看 Idea 控制台日志
 
-<img src="assets/image-20221201175511626.png" alt="image-20221201175511626" style="zoom:50%;" /> 
+<img src="img/image27.png" alt="image27" style="zoom:50%;" /> 
 
-查看Redis中数据
+查看 Redis 中数据
 
-<img src="assets/image-20221201175634896.png" alt="image-20221201175634896" style="zoom:50%;" /> 
-
-
-
-**管理端查询营业状态：**
-
-<img src="assets/image-20221201175807978.png" alt="image-20221201175807978" style="zoom:50%;" /> 
+<img src="img/image28.png" alt="image28" style="zoom:50%;" /> 
 
 
 
-**用户端查询营业状态：**
+**管理端查询营业状态**：
 
-<img src="assets/image-20221201175917397.png" alt="image-20221201175917397" style="zoom:50%;" /> 
+<img src="img/image29.png" alt="image29" style="zoom:50%;" /> 
 
+**用户端查询营业状态**：
 
+<img src="img/image30.png" alt="image30" style="zoom:50%;" /> 
 
-#### 5.3.2 接口分组展示
+### 3.2、接口分组展示
 
 在上述接口文档测试中，管理端和用户端的接口放在一起，不方便区分。
 
-<img src="assets/image-20221201181927458.png" alt="image-20221201181927458" style="zoom:50%;" /> 
+<img src="img/image31.png" alt="image31" style="zoom:50%;" /> 
 
 接下来，我们要实现管理端和用户端接口进行区分。
 
-在WebMvcConfiguration.java中，分别扫描"com.sky.controller.admin"和"com.sky.controller.user"这两个包。
+在 WebMvcConfiguration.java 中，分别扫描 "com.sky.controller.admin" 和 "com.sky.controller.user" 这两个包。
 
 ```java
-	@Bean
-    public Docket docket1(){
-        log.info("准备生成接口文档...");
-        ApiInfo apiInfo = new ApiInfoBuilder()
-                .title("苍穹外卖项目接口文档")
-                .version("2.0")
-                .description("苍穹外卖项目接口文档")
-                .build();
+@Bean
+public Docket docket1(){
+    log.info("准备生成接口文档...");
+    ApiInfo apiInfo = new ApiInfoBuilder()
+        .title("苍穹外卖项目接口文档")
+        .version("2.0")
+        .description("苍穹外卖项目接口文档")
+        .build();
 
-        Docket docket = new Docket(DocumentationType.SWAGGER_2)
-                .groupName("管理端接口")
-                .apiInfo(apiInfo)
-                .select()
-                //指定生成接口需要扫描的包
-                .apis(RequestHandlerSelectors.basePackage("com.sky.controller.admin"))
-                .paths(PathSelectors.any())
-                .build();
+    Docket docket = new Docket(DocumentationType.SWAGGER_2)
+        .groupName("管理端接口")
+        .apiInfo(apiInfo)
+        .select()
+        //指定生成接口需要扫描的包
+        .apis(RequestHandlerSelectors.basePackage("com.sky.controller.admin"))
+        .paths(PathSelectors.any())
+        .build();
 
-        return docket;
-    }
+    return docket;
+}
 
-    @Bean
-    public Docket docket2(){
-        log.info("准备生成接口文档...");
-        ApiInfo apiInfo = new ApiInfoBuilder()
-                .title("苍穹外卖项目接口文档")
-                .version("2.0")
-                .description("苍穹外卖项目接口文档")
-                .build();
+@Bean
+public Docket docket2(){
+    log.info("准备生成接口文档...");
+    ApiInfo apiInfo = new ApiInfoBuilder()
+        .title("苍穹外卖项目接口文档")
+        .version("2.0")
+        .description("苍穹外卖项目接口文档")
+        .build();
 
-        Docket docket = new Docket(DocumentationType.SWAGGER_2)
-                .groupName("用户端接口")
-                .apiInfo(apiInfo)
-                .select()
-                //指定生成接口需要扫描的包
-                .apis(RequestHandlerSelectors.basePackage("com.sky.controller.user"))
-                .paths(PathSelectors.any())
-                .build();
+    Docket docket = new Docket(DocumentationType.SWAGGER_2)
+        .groupName("用户端接口")
+        .apiInfo(apiInfo)
+        .select()
+        //指定生成接口需要扫描的包
+        .apis(RequestHandlerSelectors.basePackage("com.sky.controller.user"))
+        .paths(PathSelectors.any())
+        .build();
 
-        return docket;
-    }
+    return docket;
+}
 ```
 
 重启服务器，再次访问接口文档，可进行选择**用户端接口**或者**管理端接口**
 
-<img src="assets/image-20221201182658244.png" alt="image-20221201182658244" style="zoom:50%;" /> 
+<img src="img/image32.png" alt="image32" style="zoom:50%;" /> 
 
+### 3.3、前后端联调测试
 
-
-#### 5.3.3 前后端联调测试
-
-启动nginx,访问 http://localhost
+启动 nginx，访问 http://localhost
 
 进入后台，状态为**营业中**
 
-<img src="assets/image-20221201180353062.png" alt="image-20221201180353062" style="zoom:50%;" /> 
+<img src="img/image33.png" alt="image33" style="zoom:50%;" /> 
 
 点击**营业状态设置**，修改状态为**打烊中**
 
-<img src="assets/image-20221201180529842.png" alt="image-20221201180529842" style="zoom:50%;" /> 
+<img src="img/image34.png" alt="image34" style="zoom:50%;" /> 
 
 再次查看状态，状态已为**打烊中**
 
-<img src="assets/image-20221201180639063.png" alt="image-20221201180639063" style="zoom:50%;" /> 
+<img src="img/image35.png" alt="image35" style="zoom:50%;" /> 
 
+## 4、代码提交
 
+**点击提交**：
 
-### 5.4 代码提交
-
-**点击提交：**
-
-<img src="assets/image-20221201183950557.png" alt="image-20221201183950557" style="zoom:50%;" /> 
+<img src="img/image36.png" alt="image36" style="zoom:50%;" /> 
 
 **提交过程中**，出现提示：
 
-<img src="assets/image-20221201190245361.png" alt="image-20221201190245361" style="zoom:50%;" />  
+<img src="img/image37.png" alt="image37" style="zoom:50%;" />  
 
-**继续push:**
+**继续 push**：
 
-<img src="assets/image-20221201190329431.png" alt="image-20221201190329431" style="zoom:50%;" /> 
+<img src="img/image38.png" alt="image38" style="zoom:50%;" /> 
 
-**推送成功：**
+**推送成功**：
 
-<img src="assets/image-20221201190404588.png" alt="image-20221201190404588" style="zoom: 67%;" /> 
+<img src="img/image39.png" alt="image" style="zoom: 67%;" /> 
 
