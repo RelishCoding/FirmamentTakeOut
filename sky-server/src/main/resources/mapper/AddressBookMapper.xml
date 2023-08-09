@@ -9,13 +9,9 @@
             <if test="userId != null">
                 and user_id = #{userId}
             </if>
-        </where>
-        <where>
             <if test="phone != null">
                 and phone = #{phone}
             </if>
-        </where>
-        <where>
             <if test="isDefault != null">
                 and is_default = #{isDefault}
             </if>
