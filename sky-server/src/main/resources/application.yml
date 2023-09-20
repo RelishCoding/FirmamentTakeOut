@@ -60,3 +60,7 @@ sky:
     weChatPayCertFilePath: ${sky.wechat.weChatPayCertFilePath}
     notifyUrl: ${sky.wechat.notifyUrl}
     refundNotifyUrl: ${sky.wechat.refundNotifyUrl}
+  shop:
+    address: 四川省成都市新都区新都大道8号
+  baidu:
+    ak: 3gHWWhc8cAtO2frMRiwKlRh4EdEzmLW2
