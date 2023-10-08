@@ -5,11 +5,13 @@ import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.WorkspaceService;
 import com.sky.vo.BusinessDataVO;
+import com.sky.vo.OrderOverViewVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,6 +72,48 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .orderCompletionRate(orderCompletionRate)
                 .unitPrice(unitPrice)
                 .newUsers(newUsers)
+                .build();
+    }
+
+    /**
+     * 查询订单管理数据
+     * @return
+     */
+    @Override
+    public OrderOverViewVO getOrderOverview() {
+        LocalDateTime begin = LocalDateTime.now().with(LocalTime.MIN);
+        LocalDateTime end = LocalDateTime.now().with(LocalTime.MAX);
+
+        Map map = new HashMap();
+        map.put("begin",begin);
+        map.put("end",end);
+
+        //待接单
+        map.put("status",Orders.TO_BE_CONFIRMED);
+        Integer waitingOrders = orderMapper.countByMap(map);
+
+        //待派送
+        map.put("status", Orders.CONFIRMED);
+        Integer deliveredOrders = orderMapper.countByMap(map);
+
+        //已完成
+        map.put("status", Orders.COMPLETED);
+        Integer completedOrders = orderMapper.countByMap(map);
+
+        //已取消
+        map.put("status", Orders.CANCELLED);
+        Integer cancelledOrders = orderMapper.countByMap(map);
+
+        //全部订单
+        map.put("status", null);
+        Integer allOrders = orderMapper.countByMap(map);
+
+        return OrderOverViewVO.builder()
+                .waitingOrders(waitingOrders)
+                .deliveredOrders(deliveredOrders)
+                .completedOrders(completedOrders)
+                .cancelledOrders(cancelledOrders)
+                .allOrders(allOrders)
                 .build();
     }
 }
